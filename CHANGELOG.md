@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0dev] bigbio/quantmsdiann
+
+### `Changed`
+
+- Documentation: clarified DIA-NN container licensing. Only DIA-NN 1.8.1 is publicly redistributable (pulled from BioContainers as the default); releases from 1.9 onward must be built locally from the [quantms-containers](https://github.com/bigbio/quantms-containers) recipes and tagged `ghcr.io/bigbio/diann:<version>` so the matching `-profile diann_v<version>` resolves them. Added the missing DIA-NN 2.5.0 row to the README support table.
+
 ## [2.1.0] bigbio/quantmsdiann — Sao Pablo - 2026-05-05
 
 ### `Added`

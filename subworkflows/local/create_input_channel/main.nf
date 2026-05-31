@@ -164,13 +164,18 @@ def create_meta_channel_grouped(def filestr, List rows, Map wrapper, List downlo
     if (fixedMods.size() > 1) {
         log.error("SDRF conflict: Multiple FixedModifications (${fixedMods.join(',')}) found for file ${meta.id}. Please fix the SDRF.")
     }
-    meta.fixedmodifications = fixedMods ? fixedMods[0] : null
+    // Empty string (not null) when no fixed mod is declared: null would be
+    // interpolated as the literal "null" into the downstream --fix_mod flag.
+    // No fixed modification is valid (e.g. low-input DVP / single-cell prep
+    // without reduction+alkylation, so no Carbamidomethyl); DIA-NN and
+    // quantms-utils dianncfg both run fine with an empty fixed-mod set.
+    meta.fixedmodifications = fixedMods ? fixedMods[0] : ''
 
-    // Validate required SDRF columns
+    // Validate required SDRF columns. FixedModifications is intentionally NOT
+    // required: many label-free / low-input experiments declare no fixed mod.
     def requiredColumns = [
         'Label': meta.labelling_type,
-        'Enzyme': meta.enzyme,
-        'FixedModifications': meta.fixedmodifications
+        'Enzyme': meta.enzyme
     ]
 
     def missingColumns = []

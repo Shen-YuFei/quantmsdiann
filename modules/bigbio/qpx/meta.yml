@@ -41,10 +41,10 @@ input:
       description: PRIDE project accession (e.g. PXD026600) used as output prefix
 output:
   qpx_dataset:
-    - "qpx_output/":
-        type: directory
-        description: QPX Parquet dataset directory
-        pattern: "qpx_output/"
+    - "qpx_output/*":
+        type: file
+        description: QPX Parquet dataset files
+        pattern: "qpx_output/*"
   mudata:
     - "*.h5mu":
         type: file

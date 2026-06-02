@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### `Changed`
 
 - Documentation: clarified DIA-NN container licensing. Only DIA-NN 1.8.1 is publicly redistributable (pulled from BioContainers as the default); releases from 1.9 onward must be built locally from the [quantms-containers](https://github.com/bigbio/quantms-containers) recipes and tagged `ghcr.io/bigbio/diann:<version>` so the matching `-profile diann_v<version>` resolves them. Added the missing DIA-NN 2.5.0 row to the README support table.
+- QPX export now publishes the Parquet dataset files and the `.h5mu` MuData file directly under `results/qpx/`, removing the intermediate `qpx/qpx_output/` subfolder. The `bigbio/qpx` module emits the dataset as `qpx_output/*` files (bigbio/nf-modules#39) so `publishDir` can flatten them.
 
 ## [2.1.0] bigbio/quantmsdiann — Sao Pablo - 2026-05-05
 

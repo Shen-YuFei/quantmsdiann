@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### `Changed`
 
 - Documentation: clarified DIA-NN container licensing. Only DIA-NN 1.8.1 is publicly redistributable (pulled from BioContainers as the default); releases from 1.9 onward must be built locally from the [quantms-containers](https://github.com/bigbio/quantms-containers) recipes and tagged `ghcr.io/bigbio/diann:<version>` so the matching `-profile diann_v<version>` resolves them. Added the missing DIA-NN 2.5.0 row to the README support table.
+- QPX export now publishes the Parquet dataset files and the `.h5mu` MuData file directly under `results/qpx/`, removing the intermediate `qpx/qpx_output/` subfolder. The `bigbio/qpx` module emits the dataset as `qpx_output/*` files (bigbio/nf-modules#39) so `publishDir` can flatten them.
 - `--precursor_qvalue` default is now **version-aware**: unset resolves by `--diann_version` to `0.01` (1%) for DIA-NN < 2.5 and `0.05` (5%) for >= 2.5, matching DIA-NN's recommended precursor q-value. An explicit `--precursor_qvalue` always overrides and is never replaced by the version default. Applies to both the DIA-NN main report (`--qvalue`) and the MSstats input; the matrix thresholds (`--matrix_qvalue`, `--matrix_spec_q`) are unchanged.
 - `--performance_mode` now defaults to **`false`**. The DIA-NN calibration speed flags `--min-corr 2 --corr-diff 1 --time-corr-only` can drop identifications on some data (per DIA-NN guidance) and are now opt-in. `--quick_mass_acc` is unchanged (still `true`).
 

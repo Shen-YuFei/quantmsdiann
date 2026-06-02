@@ -16,7 +16,7 @@ process QPX_EXPORT {
     val(project_accession)
 
     output:
-    path "qpx_output/" , emit: qpx_dataset
+    path "qpx_output/*", emit: qpx_dataset
     path "*.h5mu"      , emit: mudata
     path "versions.yml", emit: versions
 

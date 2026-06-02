@@ -36,10 +36,10 @@ DIA-NN's recommended precursor q-value changed by version: older versions run at
 
 ### Mapping
 
-| `diann_version` | resolved `precursor_qvalue` |
-| --------------- | --------------------------- |
-| `< 2.5` (1.8.1, 2.1.0, 2.2.0, 2.3.2) | `0.01` (1%) |
-| `>= 2.5` (2.5.0 and later) | `0.05` (5%) |
+| `diann_version`                      | resolved `precursor_qvalue` |
+| ------------------------------------ | --------------------------- |
+| `< 2.5` (1.8.1, 2.1.0, 2.2.0, 2.3.2) | `0.01` (1%)                 |
+| `>= 2.5` (2.5.0 and later)           | `0.05` (5%)                 |
 
 Boundary = `VersionUtils.versionLessThan(diann_version, '2.5')`. An explicit
 `--precursor_qvalue` always overrides. This is **precursor-level filtering
@@ -84,6 +84,7 @@ default = "auto / resolve by version", explicit value overrides, resolution in
 one place.
 
 **`nextflow.config`**
+
 ```groovy
 precursor_qvalue        = null   // --qvalue precursor q-value; null = auto by
                                  // diann_version (<2.5 -> 0.01, >=2.5 -> 0.05).
@@ -91,6 +92,7 @@ precursor_qvalue        = null   // --qvalue precursor q-value; null = auto by
 ```
 
 **`lib/VersionUtils.groovy`** — add:
+
 ```groovy
 /**
  * Resolve the precursor-level q-value (DIA-NN --qvalue / MSstats
@@ -113,6 +115,7 @@ Since the default becomes `null`: set `"type": ["number","null"]`, drop/null the
 behavior with the mapping.
 
 **Consuming modules** — resolve once and interpolate the local:
+
 - `final_quantification/main.nf`: `def precursor_qvalue = VersionUtils.resolvePrecursorQvalue(params)` → `--qvalue ${precursor_qvalue}`
 - `diann_msstats/main.nf`: same → `--qvalue_threshold ${precursor_qvalue}`
 

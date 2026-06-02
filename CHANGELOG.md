@@ -3,6 +3,13 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### `Changed`
+
+- `--precursor_qvalue` default is now **version-aware**: unset resolves by `--diann_version` to `0.01` (1%) for DIA-NN < 2.5 and `0.05` (5%) for >= 2.5, matching DIA-NN's recommended precursor q-value. An explicit `--precursor_qvalue` always overrides and is never replaced by the version default. Applies to both the DIA-NN main report (`--qvalue`) and the MSstats input; the matrix thresholds (`--matrix_qvalue`, `--matrix_spec_q`) are unchanged.
+- `--performance_mode` now defaults to **`false`**. The DIA-NN calibration speed flags `--min-corr 2 --corr-diff 1 --time-corr-only` can drop identifications on some data (per DIA-NN guidance) and are now opt-in. `--quick_mass_acc` is unchanged (still `true`).
+
 ## [2.1.0] bigbio/quantmsdiann — Sao Pablo - 2026-05-05
 
 ### `Added`

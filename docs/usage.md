@@ -204,6 +204,15 @@ The default DIA-NN version is 1.8.1. To use a different version:
 
 Example: `nextflow run bigbio/quantmsdiann -profile test_dia,docker,diann_v2_2_0`
 
+> [!IMPORTANT]
+> DIA-NN's license only permits public redistribution of **version 1.8.1**, which
+> is pulled automatically from BioContainers (`docker.io/biocontainers/diann:v1.8.1_cv1`).
+> Containers for **1.9 and later are not public**: build them locally from the
+> [`quantms-containers`](https://github.com/bigbio/quantms-containers) recipes and
+> tag the image `ghcr.io/bigbio/diann:<version>` so the matching
+> `-profile diann_v<version>` resolves it, e.g.
+> `cd quantms-containers/diann-2.5.0 && docker build -t ghcr.io/bigbio/diann:2.5.0 .`
+
 ### Verbose Module Output
 
 Use `-profile verbose_modules` to publish intermediate files from all pipeline steps:

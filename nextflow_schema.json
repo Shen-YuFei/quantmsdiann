@@ -345,9 +345,9 @@
                 },
                 "performance_mode": {
                     "type": "boolean",
-                    "description": "Set Low RAM & High Speed Mode for DIANN, including min-corr, corr-diff, and time-corr-only three parameters",
+                    "description": "Opt-in DIA-NN speed flags (--min-corr 2 --corr-diff 1 --time-corr-only) in the calibration step. Off by default: these can drop identifications on some data (DIA-NN guidance).",
                     "fa_icon": "far fa-check-square",
-                    "default": true
+                    "default": false
                 },
                 "quick_mass_acc": {
                     "type": "boolean",
@@ -363,11 +363,10 @@
                     "default": 2
                 },
                 "precursor_qvalue": {
-                    "type": "number",
-                    "description": "Precursor-level q-value filtering threshold for the DIA-NN main report. Maps to --qvalue.",
-                    "default": 0.01,
+                    "type": ["number", "null"],
+                    "description": "Precursor-level q-value threshold for the DIA-NN main report (--qvalue) and MSstats input. Unset = auto by diann_version: 0.01 (1%) for < 2.5, 0.05 (5%) for >= 2.5.",
                     "fa_icon": "fas fa-filter",
-                    "help_text": "Controls how strictly precursor identifications are filtered in the DIA-NN main report. For proteogenomics with variant databases, the standard 0.01 (1%) is recommended."
+                    "help_text": "Controls how strictly precursors are filtered. Leave unset to follow DIA-NN's version-dependent recommendation (1% before 2.5, 5% for 2.5+). Set an explicit value to override for any version."
                 },
                 "matrix_qvalue": {
                     "type": "number",

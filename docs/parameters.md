@@ -86,15 +86,15 @@ The following DIA-NN 2.5.0 flags are not exposed as pipeline parameters but can 
 
 ## 6. Mass Accuracy & Calibration
 
-| Parameter                 | Type    | Default | Description                                                                                                                   |
-| ------------------------- | ------- | ------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `--mass_acc_automatic`    | boolean | `true`  | Automatically determine MS2 mass accuracy. When `true`, `--mass_acc_ms2` is ignored during preliminary analysis.              |
-| `--mass_acc_ms1`          | number  | `15`    | MS1 mass accuracy in ppm. Overrides automatic calibration when `--mass_acc_automatic false`. Maps to DIA-NN `--mass-acc-ms1`. |
-| `--mass_acc_ms2`          | number  | `15`    | MS2 mass accuracy in ppm. Overrides automatic calibration when `--mass_acc_automatic false`. Maps to DIA-NN `--mass-acc`.     |
-| `--scan_window`           | integer | `8`     | Scan window radius. Should approximate the average number of data points per peak.                                            |
-| `--scan_window_automatic` | boolean | `true`  | Automatically determine the scan window. When `true`, `--scan_window` is ignored.                                             |
-| `--quick_mass_acc`        | boolean | `true`  | Use a fast heuristic algorithm for mass accuracy calibration instead of ID-number optimisation.                               |
-| `--performance_mode`      | boolean | `true`  | Enable low-RAM, high-speed mode. Adds `--min-corr 2 --corr-diff 1 --time-corr-only` to DIA-NN.                                |
+| Parameter                 | Type    | Default | Description                                                                                                                               |
+| ------------------------- | ------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `--mass_acc_automatic`    | boolean | `true`  | Automatically determine MS2 mass accuracy. When `true`, `--mass_acc_ms2` is ignored during preliminary analysis.                          |
+| `--mass_acc_ms1`          | number  | `15`    | MS1 mass accuracy in ppm. Overrides automatic calibration when `--mass_acc_automatic false`. Maps to DIA-NN `--mass-acc-ms1`.             |
+| `--mass_acc_ms2`          | number  | `15`    | MS2 mass accuracy in ppm. Overrides automatic calibration when `--mass_acc_automatic false`. Maps to DIA-NN `--mass-acc`.                 |
+| `--scan_window`           | integer | `8`     | Scan window radius. Should approximate the average number of data points per peak.                                                        |
+| `--scan_window_automatic` | boolean | `true`  | Automatically determine the scan window. When `true`, `--scan_window` is ignored.                                                         |
+| `--quick_mass_acc`        | boolean | `true`  | Use a fast heuristic algorithm for mass accuracy calibration instead of ID-number optimisation.                                           |
+| `--performance_mode`      | boolean | `false` | Opt-in speed flags `--min-corr 2 --corr-diff 1 --time-corr-only` in the calibration step. Off by default: can drop IDs (DIA-NN guidance). |
 
 ## 7. Bruker/timsTOF
 
@@ -171,14 +171,14 @@ The following DIA-NN 2.5.0 flags are not exposed as pipeline parameters but can 
 
 ## 15. Quality Control
 
-| Parameter               | Type    | Default | Description                                                                                     |
-| ----------------------- | ------- | ------- | ----------------------------------------------------------------------------------------------- |
-| `--enable_pmultiqc`     | boolean | `true`  | Generate the pmultiqc QC report.                                                                |
-| `--pmultiqc_idxml_skip` | boolean | `true`  | Skip idXML files (do not generate search engine score plots) in the pmultiqc report.            |
-| `--contaminant_string`  | string  | `CONT`  | Contaminant affix string for pmultiqc. Maps to `--contaminant_affix` in pmultiqc.               |
-| `--precursor_qvalue`    | number  | `0.01`  | Precursor-level q-value threshold for the DIA-NN main report. Maps to `--qvalue`.               |
-| `--matrix_qvalue`       | number  | `0.01`  | Q-value threshold for DIA-NN output matrices (pr_matrix, pg_matrix). Maps to `--matrix-qvalue`. |
-| `--matrix_spec_q`       | number  | `0.05`  | Run-specific protein q-value for protein/gene matrices. Maps to `--matrix-spec-q`.              |
+| Parameter               | Type    | Default | Description                                                                                                                                                                            |
+| ----------------------- | ------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--enable_pmultiqc`     | boolean | `true`  | Generate the pmultiqc QC report.                                                                                                                                                       |
+| `--pmultiqc_idxml_skip` | boolean | `true`  | Skip idXML files (do not generate search engine score plots) in the pmultiqc report.                                                                                                   |
+| `--contaminant_string`  | string  | `CONT`  | Contaminant affix string for pmultiqc. Maps to `--contaminant_affix` in pmultiqc.                                                                                                      |
+| `--precursor_qvalue`    | number  | _auto_  | Precursor-level q-value for the DIA-NN main report (`--qvalue`) and MSstats input. Unset = auto by `--diann_version`: `0.01` for < 2.5, `0.05` for >= 2.5. Set explicitly to override. |
+| `--matrix_qvalue`       | number  | `0.01`  | Q-value threshold for DIA-NN output matrices (pr_matrix, pg_matrix). Maps to `--matrix-qvalue`.                                                                                        |
+| `--matrix_spec_q`       | number  | `0.05`  | Run-specific protein q-value for protein/gene matrices. Maps to `--matrix-spec-q`.                                                                                                     |
 
 ## 16. MultiQC & Reporting
 

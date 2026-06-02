@@ -51,6 +51,32 @@ share `precursor_qvalue`) follow this value. The matrix thresholds
 > mapping is our current best understanding (proceeding with 1.8.1=1%,
 > 2.5+=5%) and may be revised if he advises otherwise.
 
+### Override guarantee (hard requirement)
+
+A user-supplied precursor q-value must **never** be overwritten by the
+version-dependent default. This holds for every way the user can set it — CLI
+`--precursor_qvalue 0.02`, a `-c custom.config`, or a profile — because each
+sets `params.precursor_qvalue` to a non-null value and the resolver returns it
+unchanged before any version logic runs.
+
+Two conditions make this true and must both be satisfied:
+
+1. **`null` sentinel preserved.** The only way `params.precursor_qvalue` is
+   `null` is when the user did not set it. The resolver treats `null` as "auto"
+   and any non-null value as an explicit override.
+2. **No schema-injected default.** `nextflow_schema.json` must **not** carry
+   `"default": 0.01` for `precursor_qvalue`. If it did, the schema layer could
+   repopulate the param to `0.01` when the user omits it, making the sentinel
+   non-null and silently forcing 1% for every version (defeating both the auto
+   default and the override detection). The schema entry therefore drops the
+   default and uses `"type": ["number","null"]`.
+
+No other code path may apply its own fallback to `precursor_qvalue` (e.g.
+`params.precursor_qvalue ?: 0.01`); resolution happens only via
+`resolvePrecursorQvalue`. The two consuming modules
+(`final_quantification`, `diann_msstats`) are the only readers and both call the
+resolver — no remaining direct `$params.precursor_qvalue` interpolation.
+
 ### Design (Approach A: runtime resolver)
 
 Mirror the existing `VersionUtils.isNativeRawMode(params)` pattern: `null`
@@ -141,10 +167,16 @@ which map to `0.01` under the new rule. So existing CI does **not** exercise the
   (a) a CI/test invocation at 2.5.0 (e.g. `-c conf/diann_versions/v2_5_0.config`)
   asserting `--qvalue 0.05`, or (b) bump the "Latest" matrix entry to 2.5.0.
   Decide which during planning.
+- **Override guarantee (must test):** run a 2.5.0 path **with** an explicit
+  `--precursor_qvalue 0.02` and assert the DIA-NN command line shows
+  `--qvalue 0.02` (not the `0.05` version default). Conversely a 1.8.1 path with
+  `--precursor_qvalue 0.05` must show `--qvalue 0.05` (not `0.01`). Also confirm
+  that omitting the param leaves no schema-injected value (i.e. the auto default
+  applies) — e.g. via the resolved value in `.command.sh`.
 - **Resolver logic:** the harness is nf-test (no Groovy unit harness for `lib/`),
   so a standalone unit test for `resolvePrecursorQvalue` is awkward. Treat the
-  two integration paths above as the primary guard; document the expected
-  mapping (1.8.1/2.1/2.2/2.3.2→0.01, 2.5+→0.05, explicit override wins,
+  integration paths above as the primary guard; document the expected mapping
+  (1.8.1/2.1/2.2/2.3.2→0.01, 2.5+→0.05, explicit override wins,
   null/blank version→0.01) in the PR.
 - **Benchmark (per Vadim/reviewer request):** compare 1.8.1 vs 2.5 on
   representative data at **protein-group level**; if newer shows no clear PG-level

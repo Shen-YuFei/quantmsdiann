@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Added`
 
-- **DIA-NN Enterprise (2.5.1) support** via `-profile diann_v2_5_1_enterprise` (container `ghcr.io/bigbio/diann-enterprise:2.5.1`). New `--enable_kb` flag adds the Enterprise Knowledge Base (`--kb`) to the first-pass search to boost identifications (mainly human data); it is gated to the Enterprise build. New `--diann_license <file>` stages the Enterprise license key into each DIA-NN step as `--license`, with fallback to a key bundled next to the binary when unset. The license key is a per-user secret and is never committed or bundled into the shared image.
+- **DIA-NN Enterprise (2.5.1) support** via `-profile diann_v2_5_1_enterprise` (container `ghcr.io/bigbio/diann-enterprise:2.5.1`). New `--enable_kb` flag adds the Enterprise Knowledge Base (`--kb`) to the first-pass search to boost identifications (mainly human data); it is gated to the Enterprise build and **on by default** under the `diann_v2_5_1_enterprise` profile (disable with `--enable_kb false`). New `--diann_license <file>` stages the Enterprise license key into each DIA-NN step as `--license`, with fallback to a key bundled next to the binary when unset. The license key is a per-user secret and is never committed or bundled into the shared image.
 
 ### `Changed`
 

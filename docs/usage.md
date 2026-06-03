@@ -511,7 +511,7 @@ nextflow run bigbio/quantmsdiann \
 
 ### DIA-NN Enterprise
 
-The **DIA-NN Enterprise** build (profile `diann_v2_5_1_enterprise`) adds the **Knowledge Base** option (`--enable_kb` → DIA-NN `--kb`), which boosts identifications — most noticeably on human samples (e.g. immunopeptidomics, single-cell-like amounts), with smaller gains on other data. It also emits extra QC metrics in the main report (e.g. protein-level `Empirical.Quality`, peak-shape metrics). `--kb` is applied only to the first-pass search; it is ignored in the second pass and in library generation.
+The **DIA-NN Enterprise** build (profile `diann_v2_5_1_enterprise`) adds the **Knowledge Base** option (`--enable_kb` → DIA-NN `--kb`), which boosts identifications — most noticeably on human samples (e.g. immunopeptidomics, single-cell-like amounts), with smaller gains on other data. It also emits extra QC metrics in the main report (e.g. protein-level `Empirical.Quality`, peak-shape metrics). `--kb` is applied only to the first-pass search; it is ignored in the second pass and in library generation. The Enterprise profile enables Knowledge Base **by default** — disable it for a run with `--enable_kb false`.
 
 Enterprise requires a **license key** and a **private container** (`ghcr.io/bigbio/diann-enterprise:2.5.1`, built from the Enterprise recipe in [quantms-containers](https://github.com/bigbio/quantms-containers)). The image bundles the binary and the Knowledge Base model but **no license**.
 

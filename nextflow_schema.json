@@ -300,6 +300,24 @@
                     "description": "Specify the DIA-NN version to be used in the workflow.",
                     "fa_icon": "fas fa-tag"
                 },
+                "diann_enterprise": {
+                    "type": "boolean",
+                    "description": "Set automatically by -profile diann_v2_5_1_enterprise. Marks the DIA-NN Enterprise build and unlocks --enable_kb. Do not set manually unless using a custom Enterprise container.",
+                    "fa_icon": "fas fa-certificate",
+                    "default": false
+                },
+                "enable_kb": {
+                    "type": "boolean",
+                    "description": "Add the DIA-NN Enterprise Knowledge Base (--kb) to the first-pass search. Boosts identifications, primarily on human data. Requires the Enterprise build (-profile diann_v2_5_1_enterprise).",
+                    "fa_icon": "fas fa-brain",
+                    "default": false
+                },
+                "diann_license": {
+                    "type": ["string", "null"],
+                    "format": "file-path",
+                    "description": "Path to the DIA-NN Enterprise license key, passed as --license. Leave unset to rely on a key bundled next to the binary. The key is a per-user secret — never commit it.",
+                    "fa_icon": "fas fa-key"
+                },
                 "enable_mod_localization": {
                     "type": "boolean",
                     "description": "Enable or disable modification localization scoring in DIA-NN.",

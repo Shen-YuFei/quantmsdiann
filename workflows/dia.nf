@@ -71,6 +71,16 @@ workflow DIA {
         error("Model fine-tuning requires DIA-NN >= 2.3.2. Current version: ${params.diann_version}. Use -profile diann_v2_3_2 or later")
     }
 
+    // Enterprise guard: the Knowledge Base (--kb) is only available in the DIA-NN Enterprise build
+    if (params.enable_kb && !params.diann_enterprise) {
+        error("--enable_kb requires the DIA-NN Enterprise build. Use -profile diann_v2_5_1_enterprise.")
+    }
+    // Enterprise needs a license: either --diann_license <file> or a key bundled next to the binary
+    if (params.enable_kb && !params.diann_license) {
+        log.warn "--enable_kb is set without --diann_license. DIA-NN Enterprise requires a license; " +
+            "the run will fail unless a license key is present next to the binary in the container."
+    }
+
     // Warn about contradictory normalization flags
     if (!params.normalize && (params.channel_run_norm || params.channel_spec_norm)) {
         log.warn "Both --normalize false (adds --no-norm) and channel normalization flags are set. " +
@@ -104,6 +114,13 @@ workflow DIA {
     // Use as value channel so it can be consumed by all per-file processes
     ch_diann_cfg_val = ch_diann_cfg
 
+    // DIA-NN Enterprise license key (optional). Staged into every DIA-NN process and passed
+    // as --license. Empty list when unset, so DIA-NN falls back to a key next to the binary.
+    // The key is a per-user secret and must never be committed or pushed.
+    ch_diann_license = params.diann_license
+        ? Channel.fromPath(params.diann_license, checkIfExists: true).first()
+        : []
+
     //
     // PHASE 0 (optional): FINE-TUNE DL MODELS
     //
@@ -127,11 +144,11 @@ workflow DIA {
             .take(params.tune_n_files)
 
         // Run in-silico library generation first (with default models) for the tuning search
-        INSILICO_LIBRARY_GENERATION(ch_searchdb, ch_diann_cfg_val, ch_is_dda, [], [], [])
+        INSILICO_LIBRARY_GENERATION(ch_searchdb, ch_diann_cfg_val, ch_is_dda, [], [], [], ch_diann_license)
         tune_speclib = INSILICO_LIBRARY_GENERATION.out.predict_speclib
 
         // Run preliminary analysis on the tuning subset to produce .quant files
-        TUNE_PRELIMINARY_ANALYSIS(tuning_files.combine(tune_speclib), ch_diann_cfg_val)
+        TUNE_PRELIMINARY_ANALYSIS(tuning_files.combine(tune_speclib), ch_diann_cfg_val, ch_diann_license)
 
         // Assemble the tuning empirical library from the subset
         tune_lib_files = tuning_files
@@ -143,7 +160,8 @@ workflow DIA {
             ch_experiment_meta,
             TUNE_PRELIMINARY_ANALYSIS.out.diann_quant.collect(),
             tune_speclib,
-            ch_diann_cfg_val
+            ch_diann_cfg_val,
+            ch_diann_license
         )
         ch_software_versions = ch_software_versions
             .mix(TUNE_PRELIMINARY_ANALYSIS.out.versions)
@@ -153,7 +171,8 @@ workflow DIA {
         FINE_TUNE_MODELS(
             TUNE_ASSEMBLE_LIBRARY.out.empirical_library,
             ch_searchdb,
-            ch_diann_cfg_val
+            ch_diann_cfg_val,
+            ch_diann_license
         )
         ch_software_versions = ch_software_versions
             .mix(FINE_TUNE_MODELS.out.versions)
@@ -169,7 +188,8 @@ workflow DIA {
             ch_is_dda,
             ch_tuned_tokens,
             ch_tuned_rt,
-            ch_tuned_im
+            ch_tuned_im,
+            ch_diann_license
         )
         ch_software_versions = ch_software_versions
             .mix(TUNED_LIBRARY_GENERATION.out.versions)
@@ -184,7 +204,7 @@ workflow DIA {
         if (params.speclib != null && params.speclib.toString() != "") {
             speclib = channel.from(file(params.speclib, checkIfExists: true))
         } else {
-            INSILICO_LIBRARY_GENERATION(ch_searchdb, ch_diann_cfg_val, ch_is_dda, [], [], [])
+            INSILICO_LIBRARY_GENERATION(ch_searchdb, ch_diann_cfg_val, ch_is_dda, [], [], [], ch_diann_license)
             speclib = INSILICO_LIBRARY_GENERATION.out.predict_speclib
         }
     }
@@ -218,12 +238,12 @@ workflow DIA {
             empirical_lib_files = preanalysis_subset
                 .map { result -> result[1] }
                 .collect( sort: { a, b -> file(a).getName() <=> file(b).getName() } )
-            PRELIMINARY_ANALYSIS(preanalysis_subset.combine(speclib), ch_diann_cfg_val)
+            PRELIMINARY_ANALYSIS(preanalysis_subset.combine(speclib), ch_diann_cfg_val, ch_diann_license)
         } else {
             empirical_lib_files = ch_file_preparation_results
                 .map { result -> result[1] }
                 .collect( sort: { a, b -> file(a).getName() <=> file(b).getName() } )
-            PRELIMINARY_ANALYSIS(ch_file_preparation_results.combine(speclib), ch_diann_cfg_val)
+            PRELIMINARY_ANALYSIS(ch_file_preparation_results.combine(speclib), ch_diann_cfg_val, ch_diann_license)
         }
         ch_software_versions = ch_software_versions
             .mix(PRELIMINARY_ANALYSIS.out.versions)
@@ -237,7 +257,8 @@ workflow DIA {
             ch_experiment_meta,
             PRELIMINARY_ANALYSIS.out.diann_quant.collect(),
             speclib,
-            ch_diann_cfg_val
+            ch_diann_cfg_val,
+            ch_diann_license
         )
         ch_software_versions = ch_software_versions
             .mix(ASSEMBLE_EMPIRICAL_LIBRARY.out.versions)
@@ -278,7 +299,7 @@ workflow DIA {
     //
     // MODULE: INDIVIDUAL_ANALYSIS
     //
-    INDIVIDUAL_ANALYSIS(indiv_fin_analysis_in, ch_diann_cfg_val)
+    INDIVIDUAL_ANALYSIS(indiv_fin_analysis_in, ch_diann_cfg_val, ch_diann_license)
     ch_software_versions = ch_software_versions
         .mix(INDIVIDUAL_ANALYSIS.out.versions)
 
@@ -301,7 +322,8 @@ workflow DIA {
         empirical_lib,
         INDIVIDUAL_ANALYSIS.out.diann_quant.collect(),
         ch_searchdb,
-        ch_diann_cfg_val)
+        ch_diann_cfg_val,
+        ch_diann_license)
 
     ch_software_versions = ch_software_versions.mix(
         FINAL_QUANTIFICATION.out.versions

@@ -19,6 +19,7 @@ process ASSEMBLE_EMPIRICAL_LIBRARY {
     path("quant/*")
     path(lib)
     path(diann_config)
+    path(diann_license)
 
     output:
     path "empirical_library.*", emit: empirical_library
@@ -30,6 +31,8 @@ process ASSEMBLE_EMPIRICAL_LIBRARY {
 
     script:
     def args = task.ext.args ?: ''
+    // DIA-NN Enterprise license; falls back to a key next to the binary when no path is provided
+    def license_arg = diann_license ? "--license ${diann_license}" : ""
     // Strip flags managed by the pipeline from extra_args to prevent silent conflicts.
     // Blocked flags are defined centrally in lib/BlockedFlags.groovy — edit there, not here.
     args = BlockedFlags.strip('ASSEMBLE_EMPIRICAL_LIBRARY', args, log)
@@ -76,6 +79,7 @@ process ASSEMBLE_EMPIRICAL_LIBRARY {
             --gen-spec-lib \\
             ${scoring_mode} \\
             ${aa_eq} \\
+            ${license_arg} \\
             ${diann_tims_sum} \\
             ${diann_im_window} \\
             ${diann_dda_flag} \\

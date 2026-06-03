@@ -201,6 +201,7 @@ The default DIA-NN version is 1.8.1. To use a different version:
 | 2.2.0   | `-profile diann_v2_2_0` | Speed optimizations                 |
 | 2.3.2   | `-profile diann_v2_3_2` | DDA support, InfinDIA               |
 | 2.5.0   | `-profile diann_v2_5_0` | +70% protein IDs, model fine-tuning |
+| 2.5.1   | `-profile diann_v2_5_1` | Academic build of DIA-NN 2.5.1      |
 
 Example: `nextflow run bigbio/quantmsdiann -profile test_dia,docker,diann_v2_2_0`
 
@@ -484,6 +485,7 @@ The pipeline supports multiple DIA-NN versions via built-in Nextflow profiles. E
 | `diann_v2_2_0`            | 2.2.0              | `ghcr.io/bigbio/diann:2.2.0`               | Speed optimizations (up to 1.6x on HPC). Parquet output.                                                                                     |
 | `diann_v2_3_2`            | 2.3.2              | `ghcr.io/bigbio/diann:2.3.2`               | DDA support (`--dda`), InfinDIA, up to 9 variable mods.                                                                                      |
 | `diann_v2_5_0`            | 2.5.0              | `ghcr.io/bigbio/diann:2.5.0`               | Up to 70% more protein IDs. DL model fine-tuning and selection.                                                                              |
+| `diann_v2_5_1`            | 2.5.1              | `ghcr.io/bigbio/diann:2.5.1`               | Academic build of DIA-NN 2.5.1.                                                                                                              |
 | `diann_v2_5_1_enterprise` | 2.5.1 (Enterprise) | `ghcr.io/bigbio/diann-enterprise:2.5.1`    | Enterprise build. Knowledge Base (`--enable_kb`) + extra report QC metrics. Requires a license. See [DIA-NN Enterprise](#dia-nn-enterprise). |
 
 **Version-dependent features:** Some parameters are only available with newer DIA-NN versions. The pipeline handles version compatibility automatically:

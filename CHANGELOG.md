@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.2.0dev] bigbio/quantmsdiann
 
+### `Added`
+
+- **DIA-NN Enterprise (2.5.1) support** via `-profile diann_v2_5_1_enterprise` (container `ghcr.io/bigbio/diann-enterprise:2.5.1`). New `--enable_kb` flag adds the Enterprise Knowledge Base (`--kb`) to the first-pass search to boost identifications (mainly human data); it is gated to the Enterprise build and **on by default** under the `diann_v2_5_1_enterprise` profile (disable with `--enable_kb false`). New `--diann_license <file>` stages the Enterprise license key into each DIA-NN step as `--license`, with fallback to a key bundled next to the binary when unset. The license key is a per-user secret and is never committed or bundled into the shared image.
+
 ### `Changed`
 
 - Documentation: clarified DIA-NN container licensing. Only DIA-NN 1.8.1 is publicly redistributable (pulled from BioContainers as the default); releases from 1.9 onward must be built locally from the [quantms-containers](https://github.com/bigbio/quantms-containers) recipes and tagged `ghcr.io/bigbio/diann:<version>` so the matching `-profile diann_v<version>` resolves them. Added the missing DIA-NN 2.5.0 row to the README support table.

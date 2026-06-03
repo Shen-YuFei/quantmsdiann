@@ -484,7 +484,7 @@ The pipeline supports multiple DIA-NN versions via built-in Nextflow profiles. E
 | `diann_v2_2_0`            | 2.2.0              | `ghcr.io/bigbio/diann:2.2.0`               | Speed optimizations (up to 1.6x on HPC). Parquet output.                                                                                     |
 | `diann_v2_3_2`            | 2.3.2              | `ghcr.io/bigbio/diann:2.3.2`               | DDA support (`--dda`), InfinDIA, up to 9 variable mods.                                                                                      |
 | `diann_v2_5_0`            | 2.5.0              | `ghcr.io/bigbio/diann:2.5.0`               | Up to 70% more protein IDs. DL model fine-tuning and selection.                                                                              |
-| `diann_v2_5_1_enterprise` | 2.5.1 (Enterprise) | `ghcr.io/bigbio/diann_enterprise:2.5.1`    | Enterprise build. Knowledge Base (`--enable_kb`) + extra report QC metrics. Requires a license. See [DIA-NN Enterprise](#dia-nn-enterprise). |
+| `diann_v2_5_1_enterprise` | 2.5.1 (Enterprise) | `ghcr.io/bigbio/diann-enterprise:2.5.1`    | Enterprise build. Knowledge Base (`--enable_kb`) + extra report QC metrics. Requires a license. See [DIA-NN Enterprise](#dia-nn-enterprise). |
 
 **Version-dependent features:** Some parameters are only available with newer DIA-NN versions. The pipeline handles version compatibility automatically:
 
@@ -513,7 +513,7 @@ nextflow run bigbio/quantmsdiann \
 
 The **DIA-NN Enterprise** build (profile `diann_v2_5_1_enterprise`) adds the **Knowledge Base** option (`--enable_kb` → DIA-NN `--kb`), which boosts identifications — most noticeably on human samples (e.g. immunopeptidomics, single-cell-like amounts), with smaller gains on other data. It also emits extra QC metrics in the main report (e.g. protein-level `Empirical.Quality`, peak-shape metrics). `--kb` is applied only to the first-pass search; it is ignored in the second pass and in library generation.
 
-Enterprise requires a **license key** and a **private container** (`ghcr.io/bigbio/diann_enterprise:2.5.1`, built from the Enterprise recipe in [quantms-containers](https://github.com/bigbio/quantms-containers)). The image bundles the binary and the Knowledge Base model but **no license**.
+Enterprise requires a **license key** and a **private container** (`ghcr.io/bigbio/diann-enterprise:2.5.1`, built from the Enterprise recipe in [quantms-containers](https://github.com/bigbio/quantms-containers)). The image bundles the binary and the Knowledge Base model but **no license**.
 
 ```bash
 nextflow run bigbio/quantmsdiann \

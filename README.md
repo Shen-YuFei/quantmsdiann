@@ -43,7 +43,7 @@ The pipeline takes [SDRF](https://github.com/bigbio/proteomics-metadata-standard
 | 2.2.0            | `diann_v2_2_0`            | `ghcr.io/bigbio/diann:2.2.0`               | Speed optimizations (up to 1.6x on HPC)                           |
 | 2.3.2            | `diann_v2_3_2`            | `ghcr.io/bigbio/diann:2.3.2`               | DDA support (beta), InfinDIA, up to 9 var mods                    |
 | 2.5.0            | `diann_v2_5_0`            | `ghcr.io/bigbio/diann:2.5.0`               | +70% protein IDs, DL model selection flags                        |
-| 2.5.1 Enterprise | `diann_v2_5_1_enterprise` | `ghcr.io/bigbio/diann_enterprise:2.5.1`    | Knowledge Base (`--enable_kb`), extra QC metrics. Needs a license |
+| 2.5.1 Enterprise | `diann_v2_5_1_enterprise` | `ghcr.io/bigbio/diann-enterprise:2.5.1`    | Knowledge Base (`--enable_kb`), extra QC metrics. Needs a license |
 
 Switch versions with e.g. `-profile diann_v2_2_0,docker`. See the [DIA-NN Version Selection](docs/usage.md#dia-nn-version-selection) guide and [full parameter reference](docs/parameters.md) for details.
 

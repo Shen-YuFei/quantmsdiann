@@ -29,7 +29,7 @@ Out of scope:
 ## 1. Version / profile / container
 
 The Enterprise image is a **separate repo** from the academic one (Vadim):
-`ghcr.io/bigbio/diann_enterprise:2.5.1` (academic 2.5.1, if it ships, would be
+`ghcr.io/bigbio/diann-enterprise:2.5.1` (academic 2.5.1, if it ships, would be
 `ghcr.io/bigbio/diann:2.5.1`).
 
 - New `conf/diann_versions/v2_5_1_enterprise.config` + profile
@@ -38,7 +38,7 @@ The Enterprise image is a **separate repo** from the academic one (Vadim):
   params.diann_version    = '2.5.1'
   params.diann_enterprise = true
   process {
-      withLabel: diann { container = 'ghcr.io/bigbio/diann_enterprise:2.5.1' }
+      withLabel: diann { container = 'ghcr.io/bigbio/diann-enterprise:2.5.1' }
   }
   ```
 - New default param `diann_enterprise = false` (in `nextflow.config` + schema).
@@ -111,7 +111,7 @@ require it regardless of `--kb`.
 
 - **Guard unit/behavior:** `--enable_kb` without `diann_enterprise` errors with the expected message; with the Enterprise profile it is accepted.
 - **Command assembly:** with the Enterprise profile + `--enable_kb` + `--diann_license`, the `PRELIMINARY_ANALYSIS` `.command.sh` contains both `--kb` and `--license`; `FINAL_QUANTIFICATION`/`INDIVIDUAL_ANALYSIS` contain `--license` but **not** `--kb`; `INSILICO_LIBRARY_GENERATION`/`ASSEMBLE_EMPIRICAL_LIBRARY` contain neither `--kb`.
-- **CI:** a full Enterprise CI run needs the private `diann_enterprise:2.5.1` image and a license key — neither is publicly available, so this can't run in standard CI. Validation is a maintainer-run integration test (a real run with a valid key), documented in the PR. Academic-profile CI must be unaffected.
+- **CI:** a full Enterprise CI run needs the private `diann-enterprise:2.5.1` image and a license key — neither is publicly available, so this can't run in standard CI. Validation is a maintainer-run integration test (a real run with a valid key), documented in the PR. Academic-profile CI must be unaffected.
 - **Downstream:** confirm `diann2msstats` (quantms-utils) and pmultiqc tolerate the extra Enterprise report columns; if they select columns by name this is a no-op.
 
 ## Files touched

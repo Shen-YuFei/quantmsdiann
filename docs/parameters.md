@@ -2,6 +2,9 @@
 
 This document lists every pipeline parameter organised by category. Default values come from `nextflow.config`; types and constraints come from `nextflow_schema.json`.
 
+> [!IMPORTANT]
+> **Some parameters are taken from the SDRF per sample at runtime and override the defaults below.** Modifications (variable via `--variable_mods`; fixed modifications and **enzyme** have no parameter at all) and precursor/fragment **mass tolerances** are read from the SDRF for each file when present, falling back to the value here only if the SDRF does not specify them. As a result, the value shown here (and in `pipeline_info/params_<timestamp>.json`) is the **launch-time default/fallback**, not necessarily what a given run used. The authoritative resolved values are written to `results/sdrf/diann_config.cfg` (modifications, enzyme) and applied per file on the DIA-NN command line (mass tolerances, m/z windows). See [Output: Nextflow pipeline info](output.md#nextflow-pipeline-info).
+
 ## 1. Input/Output Options
 
 | Parameter            | Type                    | Default     | Description                                                                                                                                                                                                                                                                        |

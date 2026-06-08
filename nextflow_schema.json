@@ -352,14 +352,14 @@
                     "description": "Set the MS2 mass accuracy (tolerance) to a specific value in ppm.",
                     "fa_icon": "fas fa-bullseye",
                     "help_text": "If specified, this overrides the automatic calibration. Corresponds to the --mass-acc parameter in DIA-NN.",
-                    "default": 15
+                    "default": 20
                 },
                 "mass_acc_ms1": {
                     "type": "number",
                     "description": "Set the MS1 mass accuracy (tolerance) to a specific value in ppm.",
                     "fa_icon": "fas fa-bullseye",
                     "help_text": "If specified, this overrides the automatic calibration. Corresponds to the --mass-acc-ms1 parameter in DIA-NN.",
-                    "default": 15
+                    "default": 10
                 },
                 "performance_mode": {
                     "type": "boolean",
@@ -426,8 +426,9 @@
                 },
                 "quantums": {
                     "type": "boolean",
-                    "description": "Use legacy DIA-NN quantification algorithms (DIA-NN parameter --direct-quant); if true, QuantUMS is enabled.",
+                    "description": "Use QuantUMS quantification for DIA-NN >= 1.9.2 (default). If false, adds --direct-quant for legacy quantification.",
                     "fa_icon": "far fa-check-square",
+                    "default": true,
                     "hidden": false
                 },
                 "quantums_train_runs": {
@@ -442,6 +443,7 @@
                     "description": "Number of automatically selected runs for QuantUMS training.",
                     "fa_icon": "fas fa-sliders-h",
                     "help_text": "Sets the DIA-NN parameter --quant-sel-runs. Format: [N]. QuantUMS will train its parameters on N automatically selected runs to speed up training in large experiments. N must be 6 or greater.",
+                    "default": 20,
                     "hidden": false
                 },
                 "quantums_params": {

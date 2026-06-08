@@ -55,15 +55,12 @@ process INDIVIDUAL_ANALYSIS {
             scan_window  = params.scan_window
         }
     } else {
+        // Not auto-calibrating: SDRF ppm tolerances if provided, otherwise the param
+        // defaults. Calibration values are intentionally NOT used here.
         if (meta['precursormasstoleranceunit']?.toLowerCase()?.endsWith('ppm') && meta['fragmentmasstoleranceunit']?.toLowerCase()?.endsWith('ppm')) {
             mass_acc_ms1 = meta["precursormasstolerance"]
             mass_acc_ms2 = meta["fragmentmasstolerance"]
             scan_window  = params.scan_window
-        }
-        else if (meta.mass_acc_ms2 != "0" && meta.mass_acc_ms2 != null) {
-            mass_acc_ms2 = meta.mass_acc_ms2
-            mass_acc_ms1 = meta.mass_acc_ms1
-            scan_window  = meta.scan_window
         }
         else {
             mass_acc_ms2 = params.mass_acc_ms2

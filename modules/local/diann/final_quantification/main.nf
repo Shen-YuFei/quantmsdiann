@@ -91,7 +91,7 @@ process FINAL_QUANTIFICATION {
             --threads ${task.cpus} \\
             --verbose $params.debug_level \\
             --temp ./quant/ \\
-            --relaxed-prot-inf \\
+            --no-prot-inf \\
             --pg-level $params.pg_level \\
             ${species_genes} \\
             ${no_norm} \\

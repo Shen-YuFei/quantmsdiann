@@ -33,6 +33,9 @@ process ASSEMBLE_EMPIRICAL_LIBRARY {
     def args = task.ext.args ?: ''
     // DIA-NN Enterprise license; falls back to a key next to the binary when no path is provided
     def license_arg = diann_license ? "--license ${diann_license}" : ""
+    // DIA-NN Enterprise: Knowledge Base (--kb) on the first-pass search that builds the
+    // empirical library — this is the main identification pass, so --kb belongs here.
+    def kb = params.enable_kb ? "--kb" : ""
     // Strip flags managed by the pipeline from extra_args to prevent silent conflicts.
     // Blocked flags are defined centrally in lib/BlockedFlags.groovy — edit there, not here.
     args = BlockedFlags.strip('ASSEMBLE_EMPIRICAL_LIBRARY', args, log)
@@ -80,6 +83,7 @@ process ASSEMBLE_EMPIRICAL_LIBRARY {
             ${scoring_mode} \\
             ${aa_eq} \\
             ${license_arg} \\
+            ${kb} \\
             ${diann_tims_sum} \\
             ${diann_im_window} \\
             ${diann_dda_flag} \\

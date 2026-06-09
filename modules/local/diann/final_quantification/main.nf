@@ -55,11 +55,15 @@ process FINAL_QUANTIFICATION {
     no_norm = params.normalize ? "" : "--no-norm"
     report_decoys = params.report_decoys ? "--report-decoys": ""
     diann_export_xic = params.export_xic ? "--xic": ""
-    // --direct-quant exists in DIA-NN >= 1.9.2 (QuantUMS counterpart); skip for older versions
+    // QuantUMS is DIA-NN's recommended quant for >= 1.9.2; --direct-quant opts out to legacy quant.
+    quantums_on = params.quantums && VersionUtils.versionAtLeast(params.diann_version, '1.9.2')
     quantums = params.quantums ? "" : (VersionUtils.versionAtLeast(params.diann_version, '1.9.2') ? "--direct-quant" : "")
-    quantums_train_runs = params.quantums_train_runs ? "--quant-train-runs $params.quantums_train_runs": ""
-    quantums_sel_runs = params.quantums_sel_runs ? "--quant-sel-runs $params.quantums_sel_runs": ""
-    quantums_params = params.quantums_params ? "--quant-params $params.quantums_params": ""
+    // QuantUMS tuning flags only apply when QuantUMS is active — older versions don't support them.
+    // --quant-sel-runs caps QuantUMS parameter optimisation to N auto-selected runs, which keeps
+    // QuantUMS fast on large cohorts (thousands of runs) where optimising over every run is very slow.
+    quantums_train_runs = (quantums_on && params.quantums_train_runs) ? "--quant-train-runs $params.quantums_train_runs": ""
+    quantums_sel_runs = (quantums_on && params.quantums_sel_runs) ? "--quant-sel-runs $params.quantums_sel_runs": ""
+    quantums_params = (quantums_on && params.quantums_params) ? "--quant-params $params.quantums_params": ""
     scoring_mode = params.scoring_mode == 'proteoforms' ? '--proteoforms' :
                          params.scoring_mode == 'peptidoforms' ? '--peptidoforms' : ''
     aa_eq = params.aa_eq ? '--aa-eq' : ''
@@ -87,7 +91,7 @@ process FINAL_QUANTIFICATION {
             --threads ${task.cpus} \\
             --verbose $params.debug_level \\
             --temp ./quant/ \\
-            --relaxed-prot-inf \\
+            --no-prot-inf \\
             --pg-level $params.pg_level \\
             ${species_genes} \\
             ${no_norm} \\

@@ -71,6 +71,8 @@ class BlockedFlags {
             '--quick-mass-acc', '--min-corr', '--corr-diff', '--time-corr-only',
             '--min-pr-mz', '--max-pr-mz', '--min-fr-mz', '--max-fr-mz',
             '--channel-run-norm', '--channel-spec-norm',
+            // Pipeline-managed: Enterprise Knowledge Base, gated by params.enable_kb
+            '--kb',
             // Pipeline-managed: preliminary step disables protein inference (--no-prot-inf)
             '--no-prot-inf',
         ],
@@ -85,6 +87,8 @@ class BlockedFlags {
             // (--gen-spec-lib produces a spectral library, not a quantified report).
             // Blocked to prevent users from thinking they affect this step.
             '--no-prot-inf', '--relaxed-prot-inf', '--pg-level',
+            // Pipeline-managed: Enterprise Knowledge Base, gated by params.enable_kb
+            '--kb',
         ],
         INDIVIDUAL_ANALYSIS: [
             // Pipeline-managed: set from params and calibrated values from assembly step
@@ -96,13 +100,18 @@ class BlockedFlags {
             '--min-pr-mz', '--max-pr-mz', '--min-fr-mz', '--max-fr-mz',
             '--channel-run-norm', '--channel-spec-norm',
             '--no-prot-inf',
+            // Pipeline-managed: Enterprise Knowledge Base, gated by params.enable_kb
+            '--kb',
         ],
         FINAL_QUANTIFICATION: [
             // Pipeline-managed: set from params for final report generation
             '--no-main-report', '--gen-spec-lib', '--out-lib', '--no-ifs-removal',
             '--use-quant', '--matrices', '--out',
-            // Pipeline-managed: protein inference (--relaxed-prot-inf --pg-level)
+            // Pipeline-managed: protein inference is --no-prot-inf (blocked below); --relaxed-prot-inf
+            // also blocked so extra_args can't re-enable relaxed inference, plus --pg-level.
             '--relaxed-prot-inf', '--pg-level',
+            // Pipeline-managed: QuantUMS quantification (params.quantums and quantums_* params)
+            '--direct-quant', '--quant-sel-runs', '--quant-train-runs', '--quant-params',
             // Pipeline-managed: FDR controls (precursor_qvalue, matrix_qvalue, matrix_spec_q)
             '--qvalue', '--matrix-qvalue', '--matrix-spec-q',
             '--window', '--individual-windows',

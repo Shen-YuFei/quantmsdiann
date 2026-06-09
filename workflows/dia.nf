@@ -289,7 +289,7 @@ workflow DIA {
                     }
                     return [ ms2, ms1, sw ]
                 }
-                .collect()
+                .toList()  // toList (not collect): keep per-run [ms2,ms1,sw] triples; collect() would flatten them
                 .map { rows ->
                     def ms2s = rows.collect { it[0] }.findAll { it != null }
                     def ms1s = rows.collect { it[1] }.findAll { it != null }

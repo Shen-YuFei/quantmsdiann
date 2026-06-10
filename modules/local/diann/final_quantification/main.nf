@@ -52,10 +52,6 @@ process FINAL_QUANTIFICATION {
 
     scan_window = params.scan_window_automatic ? "--individual-windows" : "--window $params.scan_window"
     species_genes = params.species_genes ? "--species-genes": ""
-    // Protein inference: default (both opt-ins off) = DIA-NN standard inference (no flag).
-    // Opt-in, mutually exclusive (validated in the workflow):
-    //   relaxed_prot_inf -> --relaxed-prot-inf (FragPipe/Spectronaut-style grouping)
-    //   no_prot_inf      -> --no-prot-inf (reuse the empirical-library inference)
     prot_inf = params.relaxed_prot_inf ? "--relaxed-prot-inf" : (params.no_prot_inf ? "--no-prot-inf" : "")
     no_norm = params.normalize ? "" : "--no-norm"
     report_decoys = params.report_decoys ? "--report-decoys": ""

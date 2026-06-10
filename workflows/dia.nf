@@ -71,6 +71,11 @@ workflow DIA {
         error("Model fine-tuning requires DIA-NN >= 2.3.2. Current version: ${params.diann_version}. Use -profile diann_v2_3_2 or later")
     }
 
+    // Protein inference opt-ins are mutually exclusive; default (both off) = DIA-NN standard inference.
+    if (params.relaxed_prot_inf && params.no_prot_inf) {
+        error("--relaxed_prot_inf and --no_prot_inf are mutually exclusive. Set at most one (default: neither = DIA-NN standard inference).")
+    }
+
     // Enterprise guard: the Knowledge Base (--kb) is only available in the DIA-NN Enterprise build
     if (params.enable_kb && !params.diann_enterprise) {
         error("--enable_kb requires the DIA-NN Enterprise build. Use -profile diann_v2_5_1_enterprise.")

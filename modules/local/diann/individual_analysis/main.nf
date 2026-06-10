@@ -82,8 +82,7 @@ process INDIVIDUAL_ANALYSIS {
     no_main_report = VersionUtils.versionLessThan(params.diann_version, '2.3') ? "--no-main-report" : ""
     // DIA-NN Enterprise license; falls back to a key next to the binary when no path is provided
     license_arg = diann_license ? "--license ${diann_license}" : ""
-    // DIA-NN Enterprise: Knowledge Base (--kb) boosts identifications (mainly human data).
-    // Must be on the actual per-file search, not just the preliminary calibration pass.
+    prot_inf = params.relaxed_prot_inf ? "--relaxed-prot-inf" : (params.no_prot_inf ? "--no-prot-inf" : "")
     kb = params.enable_kb ? "--kb" : ""
 
     // Per-file scan ranges from SDRF (empty = no flag, DIA-NN auto-detects)
@@ -112,7 +111,7 @@ process INDIVIDUAL_ANALYSIS {
             ${no_main_report} \\
             ${license_arg} \\
             ${kb} \\
-            --relaxed-prot-inf \\
+            ${prot_inf} \\
             --pg-level $params.pg_level \\
             ${min_pr_mz} \\
             ${max_pr_mz} \\

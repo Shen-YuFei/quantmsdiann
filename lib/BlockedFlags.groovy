@@ -73,8 +73,8 @@ class BlockedFlags {
             '--channel-run-norm', '--channel-spec-norm',
             // Pipeline-managed: Enterprise Knowledge Base, gated by params.enable_kb
             '--kb',
-            // Pipeline-managed: preliminary step disables protein inference (--no-prot-inf)
-            '--no-prot-inf',
+            // Calibration pass: protein inference off (--no-prot-inf hard-coded)
+            '--no-prot-inf', '--relaxed-prot-inf',
         ],
         ASSEMBLE_EMPIRICAL_LIBRARY: [
             // Pipeline-managed: set from params and calibration results
@@ -95,7 +95,7 @@ class BlockedFlags {
             '--use-quant', '--gen-spec-lib', '--out-lib', '--matrices', '--out', '--rt-profiling',
             '--mass-acc', '--mass-acc-ms1', '--window',
             '--no-ifs-removal', '--no-main-report',
-            // Pipeline-managed: protein inference set by pipeline (--relaxed-prot-inf --pg-level)
+            // Protein inference (relaxed_prot_inf / no_prot_inf) and --pg-level (pg_level)
             '--relaxed-prot-inf', '--pg-level',
             '--min-pr-mz', '--max-pr-mz', '--min-fr-mz', '--max-fr-mz',
             '--channel-run-norm', '--channel-spec-norm',
@@ -107,8 +107,7 @@ class BlockedFlags {
             // Pipeline-managed: set from params for final report generation
             '--no-main-report', '--gen-spec-lib', '--out-lib', '--no-ifs-removal',
             '--use-quant', '--matrices', '--out',
-            // Pipeline-managed: protein inference is --no-prot-inf (blocked below); --relaxed-prot-inf
-            // also blocked so extra_args can't re-enable relaxed inference, plus --pg-level.
+            // Protein inference (relaxed_prot_inf / no_prot_inf) and --pg-level (pg_level)
             '--relaxed-prot-inf', '--pg-level',
             // Pipeline-managed: QuantUMS quantification (params.quantums and quantums_* params)
             '--direct-quant', '--quant-sel-runs', '--quant-train-runs', '--quant-params',

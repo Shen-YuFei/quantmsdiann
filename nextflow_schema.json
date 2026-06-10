@@ -405,6 +405,18 @@
                     "description": "Instructs DIA-NN to add the organism identifier to the gene names",
                     "fa_icon": "far fa-check-square"
                 },
+                "relaxed_prot_inf": {
+                    "type": "boolean",
+                    "description": "Opt-in: add --relaxed-prot-inf (FragPipe/Spectronaut-style protein grouping) to INDIVIDUAL_ANALYSIS + FINAL_QUANTIFICATION. Mutually exclusive with no_prot_inf. Default off = DIA-NN standard inference.",
+                    "fa_icon": "far fa-check-square",
+                    "default": false
+                },
+                "no_prot_inf": {
+                    "type": "boolean",
+                    "description": "Opt-in: add --no-prot-inf (reuse the empirical-library protein inference) to INDIVIDUAL_ANALYSIS + FINAL_QUANTIFICATION. Mutually exclusive with relaxed_prot_inf. Default off = DIA-NN standard inference.",
+                    "fa_icon": "far fa-check-square",
+                    "default": false
+                },
                 "speclib": {
                     "type": "string",
                     "description": "The spectral library to use for DIA-NN",

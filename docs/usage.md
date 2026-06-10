@@ -399,6 +399,25 @@ If you have an existing DIA-NN GUI (workstation) run and want to reproduce its r
 | `--matrices`, `--out`, `--out-lib`, `--gen-spec-lib`, `--lib`, `--threads`, `--verbose`, `--temp`, `--f`, `--use-quant` | Managed by the pipeline. Do not pass them.                                                                                                                                                                                                                                                                                             |
 | `--strip-unknown-mods` (predict modifications the DL predictor does not recognise)                                      | Set `strip_unknown_mods: true`. Forces DIA-NN to predict spectra/RTs/IMs for declared modifications its predictor does not recognise. Without it, in-silico library generation silently _skips_ those precursors (log: `skipping N precursors, unrecognised modifications`), so they never enter the library and are never identified. |
 
+#### Protein inference
+
+DIA-NN's **default is heuristic protein inference** (no flag), and the pipeline follows that default:
+out of the box neither `--relaxed-prot-inf` nor `--no-prot-inf` is passed, so DIA-NN performs its
+standard protein grouping. Two **mutually exclusive, opt-in** parameters override this on the
+report-producing second-pass steps (`INDIVIDUAL_ANALYSIS` + `FINAL_QUANTIFICATION`):
+
+| param | flag | effect |
+|---|---|---|
+| `relaxed_prot_inf: true` | `--relaxed-prot-inf` | FragPipe/Spectronaut-style grouping |
+| `no_prot_inf: true` | `--no-prot-inf` | disable inference; reuse the empirical-library grouping (no re-grouping) |
+| *(both `false`, default)* | *(none)* | DIA-NN standard heuristic inference |
+
+Notes:
+
+- `PRELIMINARY_ANALYSIS` always uses `--no-prot-inf` (a mass-accuracy calibration pass — no inference needed); the parameters do not affect it.
+- `INSILICO_LIBRARY_GENERATION` and `ASSEMBLE_EMPIRICAL_LIBRARY` build libraries and do **no** protein inference, so these flags have no effect there.
+- These flags are pipeline-managed: set them via the parameters above, **not** `--extra_args` (they are stripped from `extra_args` with a warning, in every DIA-NN step).
+
 ### Worked example
 
 Given this GUI command line from `report.log.txt`:

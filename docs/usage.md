@@ -401,16 +401,22 @@ If you have an existing DIA-NN GUI (workstation) run and want to reproduce its r
 
 #### Protein inference
 
-DIA-NN's **default is heuristic protein inference** (no flag), and the pipeline follows that default:
-out of the box neither `--relaxed-prot-inf` nor `--no-prot-inf` is passed, so DIA-NN performs its
-standard protein grouping. Two **mutually exclusive, opt-in** parameters override this on the
-report-producing second-pass steps (`INDIVIDUAL_ANALYSIS` + `FINAL_QUANTIFICATION`):
+DIA-NN's **default is heuristic protein inference, on by default** — in DIA-NN's own words, *"the
+easiest way to analyse things for most experiments"* ([Discussion #680](https://github.com/vdemichev/DiaNN/discussions/680)).
+The pipeline follows that default: out of the box neither `--relaxed-prot-inf` nor `--no-prot-inf` is
+passed, so DIA-NN performs its standard maximum-parsimony (greedy set-cover) grouping. Two **mutually
+exclusive, opt-in** parameters override this on the report-producing second-pass steps
+(`INDIVIDUAL_ANALYSIS` + `FINAL_QUANTIFICATION`):
 
 | param | flag | effect |
 |---|---|---|
-| `relaxed_prot_inf: true` | `--relaxed-prot-inf` | FragPipe/Spectronaut-style grouping |
-| `no_prot_inf: true` | `--no-prot-inf` | disable inference; reuse the empirical-library grouping (no re-grouping) |
-| *(both `false`, default)* | *(none)* | DIA-NN standard heuristic inference |
+| *(both `false`, default)* | *(none)* | **DIA-NN standard heuristic inference** (greedy set-cover grouping) |
+| `relaxed_prot_inf: true` | `--relaxed-prot-inf` | FragPipe/Spectronaut-style grouping — each shared peptide assigned to a single group |
+| `no_prot_inf: true` | `--no-prot-inf` | disable inference; keep the protein groups exactly as defined in the (empirical) library |
+
+**What `--relaxed-prot-inf` changes** — DIA-NN's own example ([Discussion #107](https://github.com/vdemichev/DiaNN/discussions/107)): if peptide X can come from proteins A & B, Y from B & C, and Z from A & C, then the **default** reports the groups `A;B` (X), `B;C` (Y), `A;C` (Z), while **`--relaxed-prot-inf`** reports `A` (X) and `C` (Y, Z) — each shared peptide assigned to one protein, as FragPipe/Spectronaut do.
+
+`--no-prot-inf` is **not** part of DIA-NN's documented defaults. It turns inference off so every second-pass step reuses the empirical-library grouping rather than re-inferring — useful for benchmarking, but a deliberate deviation from DIA-NN's standard behaviour. DIA-NN's general guidance is to *"keep settings default, unless recommended otherwise for the specific scenario"* ([Discussion #316](https://github.com/vdemichev/DiaNN/discussions/316)).
 
 Notes:
 

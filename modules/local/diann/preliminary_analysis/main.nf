@@ -43,6 +43,7 @@ process PRELIMINARY_ANALYSIS {
     scoring_mode = params.scoring_mode == 'proteoforms' ? '--proteoforms' :
                          params.scoring_mode == 'peptidoforms' ? '--peptidoforms' : ''
     aa_eq = params.aa_eq ? '--aa-eq' : ''
+    strip_unknown_mods = params.strip_unknown_mods ? "--strip-unknown-mods" : ""
 
     // I am using here the ["key"] syntax, since the preprocessed meta makes
     // was evaluating to null when using the dot notation.
@@ -107,6 +108,7 @@ process PRELIMINARY_ANALYSIS {
             ${max_fr_mz} \\
             ${scoring_mode} \\
             ${aa_eq} \\
+            ${strip_unknown_mods} \\
             ${diann_tims_sum} \\
             ${diann_im_window} \\
             --no-prot-inf \\

@@ -72,6 +72,7 @@ process FINAL_QUANTIFICATION {
     scoring_mode = params.scoring_mode == 'proteoforms' ? '--proteoforms' :
                          params.scoring_mode == 'peptidoforms' ? '--peptidoforms' : ''
     aa_eq = params.aa_eq ? '--aa-eq' : ''
+    strip_unknown_mods = params.strip_unknown_mods ? "--strip-unknown-mods" : ""
     // Precursor q-value: explicit param wins, else auto by diann_version (<2.5 -> 0.01, >=2.5 -> 0.05)
     precursor_qvalue = VersionUtils.resolvePrecursorQvalue(params)
     // DIA-NN Enterprise license; falls back to a key next to the binary when no path is provided
@@ -114,6 +115,7 @@ process FINAL_QUANTIFICATION {
             ${quantums_params} \\
             ${scoring_mode} \\
             ${aa_eq} \\
+            ${strip_unknown_mods} \\
             ${diann_use_quant} \\
             ${diann_dda_flag} \\
             ${diann_export_quant} \\

@@ -73,8 +73,7 @@ class BlockedFlags {
             '--channel-run-norm', '--channel-spec-norm',
             // Pipeline-managed: Enterprise Knowledge Base, gated by params.enable_kb
             '--kb',
-            // No-effect/managed: the calibration pass disables protein inference (--no-prot-inf is
-            // hard-coded); block both inference flags so extra_args can't add inference to calibration.
+            // Calibration pass: protein inference off (--no-prot-inf hard-coded)
             '--no-prot-inf', '--relaxed-prot-inf',
         ],
         ASSEMBLE_EMPIRICAL_LIBRARY: [
@@ -96,9 +95,7 @@ class BlockedFlags {
             '--use-quant', '--gen-spec-lib', '--out-lib', '--matrices', '--out', '--rt-profiling',
             '--mass-acc', '--mass-acc-ms1', '--window',
             '--no-ifs-removal', '--no-main-report',
-            // Pipeline-managed: protein inference is controlled by the relaxed_prot_inf / no_prot_inf
-            // params (default off = DIA-NN standard inference); --pg-level by pg_level. Both inference
-            // flags are blocked here (incl. --no-prot-inf below) so extra_args can't conflict.
+            // Protein inference (relaxed_prot_inf / no_prot_inf) and --pg-level (pg_level)
             '--relaxed-prot-inf', '--pg-level',
             '--min-pr-mz', '--max-pr-mz', '--min-fr-mz', '--max-fr-mz',
             '--channel-run-norm', '--channel-spec-norm',
@@ -110,9 +107,7 @@ class BlockedFlags {
             // Pipeline-managed: set from params for final report generation
             '--no-main-report', '--gen-spec-lib', '--out-lib', '--no-ifs-removal',
             '--use-quant', '--matrices', '--out',
-            // Pipeline-managed: protein inference is controlled by the relaxed_prot_inf / no_prot_inf
-            // params (default off = DIA-NN standard inference); --pg-level by pg_level. Both inference
-            // flags are blocked here (incl. --no-prot-inf below) so extra_args can't conflict.
+            // Protein inference (relaxed_prot_inf / no_prot_inf) and --pg-level (pg_level)
             '--relaxed-prot-inf', '--pg-level',
             // Pipeline-managed: QuantUMS quantification (params.quantums and quantums_* params)
             '--direct-quant', '--quant-sel-runs', '--quant-train-runs', '--quant-params',

@@ -536,6 +536,13 @@
                     "fa_icon": "fas fa-filter",
                     "hidden": true
                 },
+                "strip_unknown_mods": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Add --strip-unknown-mods so DIA-NN predicts spectra/RTs/IMs for declared modifications its predictor does not recognise (e.g. Oxidation on proline). Without it those precursors are skipped from the in-silico library.",
+                    "fa_icon": "fas fa-prescription-bottle",
+                    "help_text": "Some declared variable modifications are not built into the DIA-NN deep-learning predictor (e.g. Oxidation on proline). During in-silico library generation DIA-NN silently skips those precursors (logged as 'skipping N precursors, unrecognised modifications') unless this is enabled, so they never enter the library and are never identified. No-op when all declared modifications are recognised by the predictor."
+                },
                 "extra_args": {
                     "type": "string",
                     "description": "Extra arguments appended to all DIA-NN steps. Flags incompatible with specific steps are automatically stripped with a warning.",

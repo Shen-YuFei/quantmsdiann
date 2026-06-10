@@ -52,6 +52,9 @@ process FINAL_QUANTIFICATION {
 
     scan_window = params.scan_window_automatic ? "--individual-windows" : "--window $params.scan_window"
     species_genes = params.species_genes ? "--species-genes": ""
+    // FINAL protein inference: default reuses the empirical-library inference (--no-prot-inf);
+    // set relaxed_protein_inference=true to re-infer in the final step (--relaxed-prot-inf).
+    final_prot_inf = params.relaxed_protein_inference ? "--relaxed-prot-inf" : "--no-prot-inf"
     no_norm = params.normalize ? "" : "--no-norm"
     report_decoys = params.report_decoys ? "--report-decoys": ""
     diann_export_xic = params.export_xic ? "--xic": ""
@@ -91,7 +94,7 @@ process FINAL_QUANTIFICATION {
             --threads ${task.cpus} \\
             --verbose $params.debug_level \\
             --temp ./quant/ \\
-            --no-prot-inf \\
+            ${final_prot_inf} \\
             --pg-level $params.pg_level \\
             ${species_genes} \\
             ${no_norm} \\

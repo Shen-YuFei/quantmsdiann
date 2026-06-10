@@ -405,6 +405,12 @@
                     "description": "Instructs DIA-NN to add the organism identifier to the gene names",
                     "fa_icon": "far fa-check-square"
                 },
+                "relaxed_protein_inference": {
+                    "type": "boolean",
+                    "description": "FINAL_QUANTIFICATION protein inference: false uses --no-prot-inf (reuse the empirical-library inference); true uses --relaxed-prot-inf (re-infer in the final step).",
+                    "fa_icon": "far fa-check-square",
+                    "default": false
+                },
                 "speclib": {
                     "type": "string",
                     "description": "The spectral library to use for DIA-NN",
@@ -542,6 +548,13 @@
                     "fa_icon": "fas fa-terminal",
                     "hidden": false,
                     "help_text": "Pass additional DIA-NN command-line arguments that will be appended to all DIA-NN steps (INSILICO_LIBRARY_GENERATION, PRELIMINARY_ANALYSIS, ASSEMBLE_EMPIRICAL_LIBRARY, INDIVIDUAL_ANALYSIS, FINAL_QUANTIFICATION). Flags that conflict with a specific step are automatically stripped with a warning. For step-specific overrides, use custom Nextflow config files with ext.args."
+                },
+                "diann_extra_args": {
+                    "type": "string",
+                    "description": "DEPRECATED alias for extra_args. Use extra_args instead.",
+                    "fa_icon": "fas fa-terminal",
+                    "hidden": true,
+                    "help_text": "Deprecated and retained only for backwards compatibility. If set (and extra_args is unset), its value is appended to all DIA-NN steps and a deprecation warning is emitted. Use extra_args instead."
                 },
                 "dda": {
                     "type": "boolean",

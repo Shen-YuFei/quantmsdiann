@@ -82,11 +82,7 @@ process INDIVIDUAL_ANALYSIS {
     no_main_report = VersionUtils.versionLessThan(params.diann_version, '2.3') ? "--no-main-report" : ""
     // DIA-NN Enterprise license; falls back to a key next to the binary when no path is provided
     license_arg = diann_license ? "--license ${diann_license}" : ""
-    // Protein inference: default (both opt-ins off) = DIA-NN standard inference (no flag).
-    // Opt-in, mutually exclusive: relaxed_prot_inf -> --relaxed-prot-inf; no_prot_inf -> --no-prot-inf.
     prot_inf = params.relaxed_prot_inf ? "--relaxed-prot-inf" : (params.no_prot_inf ? "--no-prot-inf" : "")
-    // DIA-NN Enterprise: Knowledge Base (--kb) boosts identifications (mainly human data).
-    // Must be on the actual per-file search, not just the preliminary calibration pass.
     kb = params.enable_kb ? "--kb" : ""
 
     // Per-file scan ranges from SDRF (empty = no flag, DIA-NN auto-detects)

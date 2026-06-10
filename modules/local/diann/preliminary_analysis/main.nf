@@ -34,9 +34,6 @@ process PRELIMINARY_ANALYSIS {
     // Performance flags for preliminary analysis calibration step
     quick_mass_acc = params.quick_mass_acc ? "--quick-mass-acc" : ""
     performance_flags = params.performance_mode ? "--min-corr 2 --corr-diff 1 --time-corr-only" : ""
-    // DIA-NN Enterprise: Knowledge Base (--kb) on the mass-accuracy calibration pass
-    // (boosts IDs, mainly human data). Also applied to the search passes
-    // (ASSEMBLE_EMPIRICAL_LIBRARY, INDIVIDUAL_ANALYSIS) where identification happens.
     kb = params.enable_kb ? "--kb" : ""
     // DIA-NN Enterprise license; falls back to a key next to the binary when no path is provided
     license_arg = diann_license ? "--license ${diann_license}" : ""

@@ -56,12 +56,8 @@ process FINAL_QUANTIFICATION {
     no_norm = params.normalize ? "" : "--no-norm"
     report_decoys = params.report_decoys ? "--report-decoys": ""
     diann_export_xic = params.export_xic ? "--xic": ""
-    // QuantUMS is DIA-NN's recommended quant for >= 1.9.2; --direct-quant opts out to legacy quant.
     quantums_on = params.quantums && VersionUtils.versionAtLeast(params.diann_version, '1.9.2')
     quantums = params.quantums ? "" : (VersionUtils.versionAtLeast(params.diann_version, '1.9.2') ? "--direct-quant" : "")
-    // QuantUMS tuning flags only apply when QuantUMS is active — older versions don't support them.
-    // --quant-sel-runs caps QuantUMS parameter optimisation to N auto-selected runs, which keeps
-    // QuantUMS fast on large cohorts (thousands of runs) where optimising over every run is very slow.
     quantums_train_runs = (quantums_on && params.quantums_train_runs) ? "--quant-train-runs $params.quantums_train_runs": ""
     quantums_sel_runs = (quantums_on && params.quantums_sel_runs) ? "--quant-sel-runs $params.quantums_sel_runs": ""
     quantums_params = (quantums_on && params.quantums_params) ? "--quant-params $params.quantums_params": ""

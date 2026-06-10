@@ -431,7 +431,7 @@ mass_acc_automatic: false # GUI used fixed tolerances; required for Bruker timsT
 mass_acc_ms1: 15
 mass_acc_ms2: 15
 pg_level: 2
-diann_extra_args: "--smart-profiling --peak-center"
+extra_args: "--smart-profiling --peak-center"
 ```
 
 ### Common pitfalls

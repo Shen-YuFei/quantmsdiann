@@ -71,6 +71,21 @@ workflow DIA {
         error("Model fine-tuning requires DIA-NN >= 2.3.2. Current version: ${params.diann_version}. Use -profile diann_v2_3_2 or later")
     }
 
+    // Protein inference opt-ins are mutually exclusive; default (both off) = DIA-NN standard inference.
+    if (params.relaxed_prot_inf && params.no_prot_inf) {
+        error("--relaxed_prot_inf and --no_prot_inf are mutually exclusive. Set at most one (default: neither = DIA-NN standard inference).")
+    }
+
+    // Enterprise guard: the Knowledge Base (--kb) is only available in the DIA-NN Enterprise build
+    if (params.enable_kb && !params.diann_enterprise) {
+        error("--enable_kb requires the DIA-NN Enterprise build. Use -profile diann_v2_5_1_enterprise.")
+    }
+    // Enterprise needs a license: either --diann_license <file> or a key bundled next to the binary
+    if (params.enable_kb && !params.diann_license) {
+        log.warn "--enable_kb is set without --diann_license. DIA-NN Enterprise requires a license; " +
+            "the run will fail unless a license key is present next to the binary in the container."
+    }
+
     // Warn about contradictory normalization flags
     if (!params.normalize && (params.channel_run_norm || params.channel_spec_norm)) {
         log.warn "Both --normalize false (adds --no-norm) and channel normalization flags are set. " +
@@ -104,6 +119,13 @@ workflow DIA {
     // Use as value channel so it can be consumed by all per-file processes
     ch_diann_cfg_val = ch_diann_cfg
 
+    // DIA-NN Enterprise license key (optional). Staged into every DIA-NN process and passed
+    // as --license. Empty list when unset, so DIA-NN falls back to a key next to the binary.
+    // The key is a per-user secret and must never be committed or pushed.
+    ch_diann_license = params.diann_license
+        ? Channel.fromPath(params.diann_license, checkIfExists: true).first()
+        : []
+
     //
     // PHASE 0 (optional): FINE-TUNE DL MODELS
     //
@@ -127,11 +149,11 @@ workflow DIA {
             .take(params.tune_n_files)
 
         // Run in-silico library generation first (with default models) for the tuning search
-        INSILICO_LIBRARY_GENERATION(ch_searchdb, ch_diann_cfg_val, ch_is_dda, [], [], [])
+        INSILICO_LIBRARY_GENERATION(ch_searchdb, ch_diann_cfg_val, ch_is_dda, [], [], [], ch_diann_license)
         tune_speclib = INSILICO_LIBRARY_GENERATION.out.predict_speclib
 
         // Run preliminary analysis on the tuning subset to produce .quant files
-        TUNE_PRELIMINARY_ANALYSIS(tuning_files.combine(tune_speclib), ch_diann_cfg_val)
+        TUNE_PRELIMINARY_ANALYSIS(tuning_files.combine(tune_speclib), ch_diann_cfg_val, ch_diann_license)
 
         // Assemble the tuning empirical library from the subset
         tune_lib_files = tuning_files
@@ -143,7 +165,8 @@ workflow DIA {
             ch_experiment_meta,
             TUNE_PRELIMINARY_ANALYSIS.out.diann_quant.collect(),
             tune_speclib,
-            ch_diann_cfg_val
+            ch_diann_cfg_val,
+            ch_diann_license
         )
         ch_software_versions = ch_software_versions
             .mix(TUNE_PRELIMINARY_ANALYSIS.out.versions)
@@ -153,7 +176,8 @@ workflow DIA {
         FINE_TUNE_MODELS(
             TUNE_ASSEMBLE_LIBRARY.out.empirical_library,
             ch_searchdb,
-            ch_diann_cfg_val
+            ch_diann_cfg_val,
+            ch_diann_license
         )
         ch_software_versions = ch_software_versions
             .mix(FINE_TUNE_MODELS.out.versions)
@@ -169,7 +193,8 @@ workflow DIA {
             ch_is_dda,
             ch_tuned_tokens,
             ch_tuned_rt,
-            ch_tuned_im
+            ch_tuned_im,
+            ch_diann_license
         )
         ch_software_versions = ch_software_versions
             .mix(TUNED_LIBRARY_GENERATION.out.versions)
@@ -184,7 +209,7 @@ workflow DIA {
         if (params.speclib != null && params.speclib.toString() != "") {
             speclib = channel.from(file(params.speclib, checkIfExists: true))
         } else {
-            INSILICO_LIBRARY_GENERATION(ch_searchdb, ch_diann_cfg_val, ch_is_dda, [], [], [])
+            INSILICO_LIBRARY_GENERATION(ch_searchdb, ch_diann_cfg_val, ch_is_dda, [], [], [], ch_diann_license)
             speclib = INSILICO_LIBRARY_GENERATION.out.predict_speclib
         }
     }
@@ -218,12 +243,12 @@ workflow DIA {
             empirical_lib_files = preanalysis_subset
                 .map { result -> result[1] }
                 .collect( sort: { a, b -> file(a).getName() <=> file(b).getName() } )
-            PRELIMINARY_ANALYSIS(preanalysis_subset.combine(speclib), ch_diann_cfg_val)
+            PRELIMINARY_ANALYSIS(preanalysis_subset.combine(speclib), ch_diann_cfg_val, ch_diann_license)
         } else {
             empirical_lib_files = ch_file_preparation_results
                 .map { result -> result[1] }
                 .collect( sort: { a, b -> file(a).getName() <=> file(b).getName() } )
-            PRELIMINARY_ANALYSIS(ch_file_preparation_results.combine(speclib), ch_diann_cfg_val)
+            PRELIMINARY_ANALYSIS(ch_file_preparation_results.combine(speclib), ch_diann_cfg_val, ch_diann_license)
         }
         ch_software_versions = ch_software_versions
             .mix(PRELIMINARY_ANALYSIS.out.versions)
@@ -237,28 +262,83 @@ workflow DIA {
             ch_experiment_meta,
             PRELIMINARY_ANALYSIS.out.diann_quant.collect(),
             speclib,
-            ch_diann_cfg_val
+            ch_diann_cfg_val,
+            ch_diann_license
         )
         ch_software_versions = ch_software_versions
             .mix(ASSEMBLE_EMPIRICAL_LIBRARY.out.versions)
-        // Parse calibrated params from the assembly log on the head node
-        // Format changed in 2.5.0
-        ch_parsed_vals = ASSEMBLE_EMPIRICAL_LIBRARY.out.log
-            .map { log_file ->
-                def ms1 = "${params.mass_acc_ms1}"
-                def ms2 = "${params.mass_acc_ms2}"
-                def sw = "${params.scan_window}"
-                def match = log_file.text.readLines().find { it.contains("Averaged recommended settings") }
-                if (match) {
-                    def ms1_match = match =~ /MS1 accuracy\s*=\s*([0-9.]+)/
-                    if (ms1_match.find()) ms1 = ms1_match.group(1)
-                    def ms2_match = match =~ /(?:MS2|Mass) accuracy\s*=\s*([0-9.]+)/
-                    if (ms2_match.find()) ms2 = ms2_match.group(1)
-                    def sw_match = match =~ /Scan window\s*=\s*([0-9.]+)/
-                    if (sw_match.find()) sw = sw_match.group(1)
+        // Capture the optimised mass accuracy / scan window for the per-file search.
+        //
+        // DIA-NN >= 2.5.0 emits an UNRELIABLE "Averaged recommended settings" line in the
+        // ASSEMBLE_EMPIRICAL_LIBRARY log: that step combines --use-quant with
+        // --individual-mass-acc, which DIA-NN flags as "strongly not recommended" and then
+        // falls back to a default MS1 = 20 ppm (far too wide e.g. for Orbitrap Astral),
+        // decoupled from the genuine per-run optimisation. So for >= 2.5.0 we read the real
+        // optimised values from each PRELIMINARY log ("Recommended MS1 mass accuracy setting"
+        // = MS1, "Suggested mass accuracy" = MS2, "Scan window radius set to" = window) and
+        // average across runs. DIA-NN < 2.5.0 keeps the (correct, for that format) ASSEMBLE
+        // "Averaged recommended settings" line.
+        if (VersionUtils.versionAtLeast(params.diann_version, '2.5.0')) {
+            ch_parsed_vals = PRELIMINARY_ANALYSIS.out.log
+                .map { _meta, log_file ->
+                    Double ms1 = null
+                    Double ms2 = null
+                    Double sw  = null
+                    log_file.text.readLines().each { line ->
+                        def m1 = line =~ /Recommended MS1 mass accuracy setting:\s*([0-9.]+)/
+                        if (m1.find()) ms1 = m1.group(1) as Double
+                        def m2 = line =~ /Suggested mass accuracy:\s*([0-9.]+)/
+                        if (m2.find()) ms2 = m2.group(1) as Double
+                        def ws = line =~ /Scan window radius set to\s*([0-9.]+)/
+                        if (ws.find()) sw = ws.group(1) as Double
+                    }
+                    return [ ms2, ms1, sw ]
                 }
-                return "${ms2},${ms1},${sw}"
-            }
+                .toList()  // toList (not collect): keep per-run [ms2,ms1,sw] triples; collect() would flatten them
+                .map { rows ->
+                    def ms2s = rows.collect { it[0] }.findAll { it != null }
+                    def ms1s = rows.collect { it[1] }.findAll { it != null }
+                    def sws  = rows.collect { it[2] }.findAll { it != null }
+                    if (ms2s && ms1s) {
+                        def ms2 = ((ms2s.sum() as Double) / ms2s.size()).round(1)
+                        def ms1 = ((ms1s.sum() as Double) / ms1s.size()).round(1)
+                        def sw  = sws ? Math.round((sws.sum() as Double) / sws.size()) : params.scan_window
+                        log.info "DIA-NN >= 2.5.0: optimised mass accuracy from PRELIMINARY logs " +
+                                 "(averaged over ${ms1s.size()} run(s)): MS2=${ms2} ppm, MS1=${ms1} ppm, scan window=${sw}"
+                        return "${ms2},${ms1},${sw}"
+                    }
+                    // Calibration could not be parsed -> emit a 0,0,0 sentinel so
+                    // INDIVIDUAL_ANALYSIS falls back to the previous reliable value
+                    // (SDRF ppm tolerances if annotated, otherwise the param defaults).
+                    log.warn "DIA-NN >= 2.5.0: could not parse optimised mass accuracy from PRELIMINARY " +
+                             "logs; INDIVIDUAL_ANALYSIS will use SDRF ppm tolerances or mass_acc_ms1/ms2 defaults."
+                    return "0,0,0"
+                }
+        } else {
+            // DIA-NN < 2.5.0: the ASSEMBLE "Averaged recommended settings" line is reliable.
+            ch_parsed_vals = ASSEMBLE_EMPIRICAL_LIBRARY.out.log
+                .map { log_file ->
+                    def match = log_file.text.readLines().find { it.contains("Averaged recommended settings") }
+                    if (match) {
+                        def ms1 = null
+                        def ms2 = null
+                        def sw  = null
+                        def ms1_match = match =~ /MS1 accuracy\s*=\s*([0-9.]+)/
+                        if (ms1_match.find()) ms1 = ms1_match.group(1)
+                        def ms2_match = match =~ /(?:MS2|Mass) accuracy\s*=\s*([0-9.]+)/
+                        if (ms2_match.find()) ms2 = ms2_match.group(1)
+                        def sw_match = match =~ /Scan window\s*=\s*([0-9.]+)/
+                        if (sw_match.find()) sw = sw_match.group(1)
+                        if (ms1 != null && ms2 != null) {
+                            return "${ms2},${ms1},${sw ?: params.scan_window}"
+                        }
+                    }
+                    // Calibration could not be parsed -> sentinel, fall back to SDRF/params downstream.
+                    log.warn "DIA-NN < 2.5.0: could not parse 'Averaged recommended settings' from the " +
+                             "ASSEMBLE log; INDIVIDUAL_ANALYSIS will use SDRF ppm tolerances or mass_acc_ms1/ms2 defaults."
+                    return "0,0,0"
+                }
+        }
         indiv_fin_analysis_in = ch_file_preparation_results
             .combine(ch_searchdb)
             .combine(ASSEMBLE_EMPIRICAL_LIBRARY.out.empirical_library)
@@ -278,7 +358,7 @@ workflow DIA {
     //
     // MODULE: INDIVIDUAL_ANALYSIS
     //
-    INDIVIDUAL_ANALYSIS(indiv_fin_analysis_in, ch_diann_cfg_val)
+    INDIVIDUAL_ANALYSIS(indiv_fin_analysis_in, ch_diann_cfg_val, ch_diann_license)
     ch_software_versions = ch_software_versions
         .mix(INDIVIDUAL_ANALYSIS.out.versions)
 
@@ -301,7 +381,8 @@ workflow DIA {
         empirical_lib,
         INDIVIDUAL_ANALYSIS.out.diann_quant.collect(),
         ch_searchdb,
-        ch_diann_cfg_val)
+        ch_diann_cfg_val,
+        ch_diann_license)
 
     ch_software_versions = ch_software_versions.mix(
         FINAL_QUANTIFICATION.out.versions

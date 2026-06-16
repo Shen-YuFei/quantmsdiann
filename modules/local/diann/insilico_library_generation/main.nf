@@ -15,6 +15,7 @@ process INSILICO_LIBRARY_GENERATION {
     path(tuned_tokens)   // optional: fine-tuned tokenizer dict (pass [] when not used)
     path(tuned_rt_model) // optional: fine-tuned RT model (pass [] when not used)
     path(tuned_im_model) // optional: fine-tuned IM model (pass [] when not used)
+    path(diann_license)  // optional: DIA-NN Enterprise license key (pass [] when not used)
 
     output:
     path "versions.yml", emit: versions
@@ -39,6 +40,7 @@ process INSILICO_LIBRARY_GENERATION {
     scoring_mode = params.scoring_mode == 'proteoforms' ? '--proteoforms' :
                          params.scoring_mode == 'peptidoforms' ? '--peptidoforms' : ''
     aa_eq = params.aa_eq ? '--aa-eq' : ''
+    strip_unknown_mods = params.strip_unknown_mods ? "--strip-unknown-mods" : ""
     diann_dda_flag = is_dda ? "--dda" : ""
     diann_light_models = params.light_models ? "--light-models" : ""
     // Fine-tuned model flags — only set when tuned model files are provided
@@ -46,6 +48,8 @@ process INSILICO_LIBRARY_GENERATION {
     tuned_rt_flag = tuned_rt_model ? "--rt-model ${tuned_rt_model}" : ''
     tuned_im_flag = tuned_im_model ? "--im-model ${tuned_im_model}" : ''
     infin_dia_flag = params.enable_infin_dia ? "--infin-dia" : ""
+    // DIA-NN Enterprise license; falls back to a key next to the binary when no path is provided
+    license_arg = diann_license ? "--license ${diann_license}" : ""
     pre_select_flag = (params.enable_infin_dia && params.pre_select) ? "--pre-select $params.pre_select" : ""
 
     """
@@ -69,6 +73,8 @@ process INSILICO_LIBRARY_GENERATION {
             --gen-spec-lib \\
             ${scoring_mode} \\
             ${aa_eq} \\
+            ${strip_unknown_mods} \\
+            ${license_arg} \\
             ${diann_light_models} \\
             ${tuned_tokens_flag} \\
             ${tuned_rt_flag} \\

@@ -201,8 +201,18 @@ The default DIA-NN version is 1.8.1. To use a different version:
 | 2.2.0   | `-profile diann_v2_2_0` | Speed optimizations                 |
 | 2.3.2   | `-profile diann_v2_3_2` | DDA support, InfinDIA               |
 | 2.5.0   | `-profile diann_v2_5_0` | +70% protein IDs, model fine-tuning |
+| 2.5.1   | `-profile diann_v2_5_1` | Academic build of DIA-NN 2.5.1      |
 
 Example: `nextflow run bigbio/quantmsdiann -profile test_dia,docker,diann_v2_2_0`
+
+> [!IMPORTANT]
+> DIA-NN's license only permits public redistribution of **version 1.8.1**, which
+> is pulled automatically from BioContainers (`docker.io/biocontainers/diann:v1.8.1_cv1`).
+> Containers for **1.9 and later are not public**: build them locally from the
+> [`quantms-containers`](https://github.com/bigbio/quantms-containers) recipes and
+> tag the image `ghcr.io/bigbio/diann:<version>` so the matching
+> `-profile diann_v<version>` resolves it, e.g.
+> `cd quantms-containers/diann-2.5.0 && docker build -t ghcr.io/bigbio/diann:2.5.0 .`
 
 ### Verbose Module Output
 
@@ -368,25 +378,51 @@ If you have an existing DIA-NN GUI (workstation) run and want to reproduce its r
 
 ### Where each GUI flag goes
 
-| GUI flag (from `report.log.txt`)                                                                                        | quantmsdiann equivalent                                                                                                                                                                                                                                 |
-| ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--fasta <db>`, `--fasta-search`, `--predictor`                                                                         | Set automatically by INSILICO_LIBRARY_GENERATION when `--diann_speclib` is unset.                                                                                                                                                                       |
-| `--missed-cleavages N`                                                                                                  | `allowed_missed_cleavages: N`                                                                                                                                                                                                                           |
-| `--min-pep-len`, `--max-pep-len`                                                                                        | `min_peptide_length`, `max_peptide_length`                                                                                                                                                                                                              |
-| `--min-pr-charge`, `--max-pr-charge`                                                                                    | `min_precursor_charge`, `max_precursor_charge`                                                                                                                                                                                                          |
-| `--min-pr-mz`, `--max-pr-mz`, `--min-fr-mz`, `--max-fr-mz`                                                              | `min_pr_mz`, `max_pr_mz`, `min_fr_mz`, `max_fr_mz`                                                                                                                                                                                                      |
-| `--met-excision`                                                                                                        | `met_excision: true`                                                                                                                                                                                                                                    |
-| `--unimod4` (Carbamidomethyl-C fixed)                                                                                   | Declare via SDRF: `comment[modification parameters]` = `NT=Carbamidomethyl;MT=Fixed;TA=C;AC=UNIMOD:4`.                                                                                                                                                  |
-| `--var-mod UniMod:35,15.994915,M` (Oxidation-M variable)                                                                | Declare via SDRF: `comment[modification parameters]` = `NT=Oxidation;MT=Variable;TA=M;AC=UNIMOD:35`.                                                                                                                                                    |
-| `--mass-acc 15 --mass-acc-ms1 15` (fixed tolerances)                                                                    | `mass_acc_automatic: false`, `mass_acc_ms1: 15`, `mass_acc_ms2: 15`.                                                                                                                                                                                    |
-| (no `--mass-acc`; GUI auto)                                                                                             | `mass_acc_automatic: true` (the default). **Not recommended for Bruker timsTOF** — see [Bruker/timsTOF Data](#brukertimstof-data).                                                                                                                      |
-| `--reanalyse` (MBR / shared-library two-pass)                                                                           | **No equivalent flag — already done by the pipeline architecture.** PRELIMINARY_ANALYSIS → ASSEMBLE_EMPIRICAL_LIBRARY → INDIVIDUAL_ANALYSIS implements the same shared-library, per-run-search behaviour. Do not pass `--reanalyse` via `--extra_args`. |
-| `--relaxed-prot-inf`                                                                                                    | Always set by INDIVIDUAL_ANALYSIS and FINAL_QUANTIFICATION. (`pg_level: 2` = genes is the matching default.)                                                                                                                                            |
-| `--smart-profiling`                                                                                                     | Pass via `--extra_args '--smart-profiling'`.                                                                                                                                                                                                            |
-| `--peak-center`                                                                                                         | Pass via `--extra_args '--peak-center'`.                                                                                                                                                                                                                |
-| `--no-ifs-removal`                                                                                                      | Set automatically for DIA-NN < 2.3 (removed upstream in 2.3+).                                                                                                                                                                                          |
-| `--qvalue 0.01`                                                                                                         | DIA-NN default; `protein_level_fdr_cutoff: 0.01` controls pmultiqc filtering.                                                                                                                                                                           |
-| `--matrices`, `--out`, `--out-lib`, `--gen-spec-lib`, `--lib`, `--threads`, `--verbose`, `--temp`, `--f`, `--use-quant` | Managed by the pipeline. Do not pass them.                                                                                                                                                                                                              |
+| GUI flag (from `report.log.txt`)                                                                                        | quantmsdiann equivalent                                                                                                                                                                                                                                                                                                                     |
+| ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--fasta <db>`, `--fasta-search`, `--predictor`                                                                         | Set automatically by INSILICO_LIBRARY_GENERATION when `--diann_speclib` is unset.                                                                                                                                                                                                                                                           |
+| `--missed-cleavages N`                                                                                                  | `allowed_missed_cleavages: N`                                                                                                                                                                                                                                                                                                               |
+| `--min-pep-len`, `--max-pep-len`                                                                                        | `min_peptide_length`, `max_peptide_length`                                                                                                                                                                                                                                                                                                  |
+| `--min-pr-charge`, `--max-pr-charge`                                                                                    | `min_precursor_charge`, `max_precursor_charge`                                                                                                                                                                                                                                                                                              |
+| `--min-pr-mz`, `--max-pr-mz`, `--min-fr-mz`, `--max-fr-mz`                                                              | `min_pr_mz`, `max_pr_mz`, `min_fr_mz`, `max_fr_mz`                                                                                                                                                                                                                                                                                          |
+| `--met-excision`                                                                                                        | `met_excision: true`                                                                                                                                                                                                                                                                                                                        |
+| `--unimod4` (Carbamidomethyl-C fixed)                                                                                   | Declare via SDRF: `comment[modification parameters]` = `NT=Carbamidomethyl;MT=Fixed;TA=C;AC=UNIMOD:4`.                                                                                                                                                                                                                                      |
+| `--var-mod UniMod:35,15.994915,M` (Oxidation-M variable)                                                                | Declare via SDRF: `comment[modification parameters]` = `NT=Oxidation;MT=Variable;TA=M;AC=UNIMOD:35`.                                                                                                                                                                                                                                        |
+| `--mass-acc 15 --mass-acc-ms1 15` (fixed tolerances)                                                                    | `mass_acc_automatic: false`, `mass_acc_ms1: 15`, `mass_acc_ms2: 15`.                                                                                                                                                                                                                                                                        |
+| (no `--mass-acc`; GUI auto)                                                                                             | `mass_acc_automatic: true` (the default). **Not recommended for Bruker timsTOF** — see [Bruker/timsTOF Data](#brukertimstof-data).                                                                                                                                                                                                          |
+| `--reanalyse` (MBR / shared-library two-pass)                                                                           | **No equivalent flag — already done by the pipeline architecture.** PRELIMINARY_ANALYSIS → ASSEMBLE_EMPIRICAL_LIBRARY → INDIVIDUAL_ANALYSIS implements the same shared-library, per-run-search behaviour. Do not pass `--reanalyse` via `--extra_args`.                                                                                     |
+| `--relaxed-prot-inf`                                                                                                    | Opt-in via `relaxed_prot_inf: true` (default `false`). By default the pipeline uses DIA-NN's **standard** protein inference (no flag) in INDIVIDUAL_ANALYSIS + FINAL_QUANTIFICATION. Mutually exclusive with `no_prot_inf: true` (`--no-prot-inf`, reuse the empirical-library inference). (`pg_level: 2` = genes is the matching default.) |
+| `--smart-profiling`                                                                                                     | Pass via `--extra_args '--smart-profiling'`.                                                                                                                                                                                                                                                                                                |
+| `--peak-center`                                                                                                         | Pass via `--extra_args '--peak-center'`.                                                                                                                                                                                                                                                                                                    |
+| `--no-ifs-removal`                                                                                                      | Set automatically for DIA-NN < 2.3 (removed upstream in 2.3+).                                                                                                                                                                                                                                                                              |
+| `--qvalue 0.01`                                                                                                         | DIA-NN default; `protein_level_fdr_cutoff: 0.01` controls pmultiqc filtering.                                                                                                                                                                                                                                                               |
+| `--matrices`, `--out`, `--out-lib`, `--gen-spec-lib`, `--lib`, `--threads`, `--verbose`, `--temp`, `--f`, `--use-quant` | Managed by the pipeline. Do not pass them.                                                                                                                                                                                                                                                                                                  |
+| `--strip-unknown-mods` (predict modifications the DL predictor does not recognise)                                      | Set `strip_unknown_mods: true`. Forces DIA-NN to predict spectra/RTs/IMs for declared modifications its predictor does not recognise. Without it, in-silico library generation silently _skips_ those precursors (log: `skipping N precursors, unrecognised modifications`), so they never enter the library and are never identified.      |
+
+#### Protein inference
+
+DIA-NN's **default is heuristic protein inference, on by default** — in DIA-NN's own words, _"the
+easiest way to analyse things for most experiments"_ ([Discussion #680](https://github.com/vdemichev/DiaNN/discussions/680)).
+The pipeline follows that default: out of the box neither `--relaxed-prot-inf` nor `--no-prot-inf` is
+passed, so DIA-NN performs its standard maximum-parsimony (greedy set-cover) grouping. Two **mutually
+exclusive, opt-in** parameters override this on the report-producing second-pass steps
+(`INDIVIDUAL_ANALYSIS` + `FINAL_QUANTIFICATION`):
+
+| param                     | flag                 | effect                                                                                   |
+| ------------------------- | -------------------- | ---------------------------------------------------------------------------------------- |
+| _(both `false`, default)_ | _(none)_             | **DIA-NN standard heuristic inference** (greedy set-cover grouping)                      |
+| `relaxed_prot_inf: true`  | `--relaxed-prot-inf` | FragPipe/Spectronaut-style grouping — each shared peptide assigned to a single group     |
+| `no_prot_inf: true`       | `--no-prot-inf`      | disable inference; keep the protein groups exactly as defined in the (empirical) library |
+
+**What `--relaxed-prot-inf` changes** — DIA-NN's own example ([Discussion #107](https://github.com/vdemichev/DiaNN/discussions/107)): if peptide X can come from proteins A & B, Y from B & C, and Z from A & C, then the **default** reports the groups `A;B` (X), `B;C` (Y), `A;C` (Z), while **`--relaxed-prot-inf`** reports `A` (X) and `C` (Y, Z) — each shared peptide assigned to one protein, as FragPipe/Spectronaut do.
+
+`--no-prot-inf` is **not** part of DIA-NN's documented defaults. It turns inference off so every second-pass step reuses the empirical-library grouping rather than re-inferring — useful for benchmarking, but a deliberate deviation from DIA-NN's standard behaviour. DIA-NN's general guidance is to _"keep settings default, unless recommended otherwise for the specific scenario"_ ([Discussion #316](https://github.com/vdemichev/DiaNN/discussions/316)).
+
+Notes:
+
+- `PRELIMINARY_ANALYSIS` always uses `--no-prot-inf` (a mass-accuracy calibration pass — no inference needed); the parameters do not affect it.
+- `INSILICO_LIBRARY_GENERATION` and `ASSEMBLE_EMPIRICAL_LIBRARY` build libraries and do **no** protein inference, so these flags have no effect there.
+- These flags are pipeline-managed: set them via the parameters above, **not** `--extra_args` (they are stripped from `extra_args` with a warning, in every DIA-NN step).
 
 ### Worked example
 
@@ -421,7 +457,7 @@ mass_acc_automatic: false # GUI used fixed tolerances; required for Bruker timsT
 mass_acc_ms1: 15
 mass_acc_ms2: 15
 pg_level: 2
-diann_extra_args: "--smart-profiling --peak-center"
+extra_args: "--smart-profiling --peak-center"
 ```
 
 ### Common pitfalls
@@ -430,6 +466,7 @@ diann_extra_args: "--smart-profiling --peak-center"
 - **Passing `--reanalyse` via `--extra_args`.** It will be stripped or it will collide with the pipeline's empirical-library two-pass. Leave it out.
 - **Setting Carbamidomethyl(C) via parameters.** Modifications come from the SDRF, not from `params.yml`. If your GUI run had `--unimod4`, make sure the SDRF declares Carbamidomethyl(C) as fixed.
 - **Different DIA-NN version.** A pipeline run with `-profile diann_v2_3_2` will not match a 1.8.1 GUI run even with identical flags. Pin the same version in both places when comparing.
+- **Non-standard PTMs silently lost.** If a declared variable modification is not recognised by the DIA-NN deep-learning predictor, in-silico library generation **skips those precursors** unless you set `strip_unknown_mods: true`. Check the `INSILICO_LIBRARY_GENERATION` log for `skipping N precursors, unrecognised modifications` — a non-zero `N` means those peptidoforms never entered the library.
 
 ## Passing Extra Arguments to DIA-NN
 
@@ -468,13 +505,15 @@ process {
 
 The pipeline supports multiple DIA-NN versions via built-in Nextflow profiles. Each profile sets `params.diann_version` and overrides the container image for all `diann`-labelled processes.
 
-| Profile        | DIA-NN Version | Container                                  | Key features                                                    |
-| -------------- | -------------- | ------------------------------------------ | --------------------------------------------------------------- |
-| `diann_v1_8_1` | 1.8.1          | `docker.io/biocontainers/diann:v1.8.1_cv1` | Default. Public BioContainers image. TSV output.                |
-| `diann_v2_1_0` | 2.1.0          | `ghcr.io/bigbio/diann:2.1.0`               | Parquet output. Native .raw on Linux. QuantUMS (`--quantums`).  |
-| `diann_v2_2_0` | 2.2.0          | `ghcr.io/bigbio/diann:2.2.0`               | Speed optimizations (up to 1.6x on HPC). Parquet output.        |
-| `diann_v2_3_2` | 2.3.2          | `ghcr.io/bigbio/diann:2.3.2`               | DDA support (`--dda`), InfinDIA, up to 9 variable mods.         |
-| `diann_v2_5_0` | 2.5.0          | `ghcr.io/bigbio/diann:2.5.0`               | Up to 70% more protein IDs. DL model fine-tuning and selection. |
+| Profile                   | DIA-NN Version     | Container                                  | Key features                                                                                                                                 |
+| ------------------------- | ------------------ | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `diann_v1_8_1`            | 1.8.1              | `docker.io/biocontainers/diann:v1.8.1_cv1` | Default. Public BioContainers image. TSV output.                                                                                             |
+| `diann_v2_1_0`            | 2.1.0              | `ghcr.io/bigbio/diann:2.1.0`               | Parquet output. Native .raw on Linux. QuantUMS (`--quantums`).                                                                               |
+| `diann_v2_2_0`            | 2.2.0              | `ghcr.io/bigbio/diann:2.2.0`               | Speed optimizations (up to 1.6x on HPC). Parquet output.                                                                                     |
+| `diann_v2_3_2`            | 2.3.2              | `ghcr.io/bigbio/diann:2.3.2`               | DDA support (`--dda`), InfinDIA, up to 9 variable mods.                                                                                      |
+| `diann_v2_5_0`            | 2.5.0              | `ghcr.io/bigbio/diann:2.5.0`               | Up to 70% more protein IDs. DL model fine-tuning and selection.                                                                              |
+| `diann_v2_5_1`            | 2.5.1              | `ghcr.io/bigbio/diann:2.5.1`               | Academic build of DIA-NN 2.5.1.                                                                                                              |
+| `diann_v2_5_1_enterprise` | 2.5.1 (Enterprise) | `ghcr.io/bigbio/diann-enterprise:2.5.1`    | Enterprise build. Knowledge Base (`--enable_kb`) + extra report QC metrics. Requires a license. See [DIA-NN Enterprise](#dia-nn-enterprise). |
 
 **Version-dependent features:** Some parameters are only available with newer DIA-NN versions. The pipeline handles version compatibility automatically:
 
@@ -498,6 +537,23 @@ nextflow run bigbio/quantmsdiann \
 
 > [!NOTE]
 > DIA-NN 1.8.1 uses a public BioContainers image (no auth). DIA-NN 2.x images are on `ghcr.io/bigbio` and require GHCR authentication. You can also build containers yourself from [quantms-containers](https://github.com/bigbio/quantms-containers).
+
+### DIA-NN Enterprise
+
+The **DIA-NN Enterprise** build (profile `diann_v2_5_1_enterprise`) adds the **Knowledge Base** option (`--enable_kb` → DIA-NN `--kb`), which boosts identifications — most noticeably on human samples (e.g. immunopeptidomics, single-cell-like amounts), with smaller gains on other data. It also emits extra QC metrics in the main report (e.g. protein-level `Empirical.Quality`, peak-shape metrics). `--kb` is applied only to the first-pass search; it is ignored in the second pass and in library generation. The Enterprise profile enables Knowledge Base **by default** — disable it for a run with `--enable_kb false`.
+
+Enterprise requires a **license key** and a **private container** (`ghcr.io/bigbio/diann-enterprise:2.5.1`, built from the Enterprise recipe in [quantms-containers](https://github.com/bigbio/quantms-containers)). The image bundles the binary and the Knowledge Base model but **no license**.
+
+```bash
+nextflow run bigbio/quantmsdiann \
+    -profile diann_v2_5_1_enterprise,docker \
+    --enable_kb \
+    --diann_license /path/to/DIA-NN-License-Key \
+    --input experiment.sdrf.tsv --database db.fasta --outdir results
+```
+
+> [!IMPORTANT]
+> The Enterprise license key is issued per user and is **not redistributable**. Never commit it or bake it into a shared image. Supply it at runtime with `--diann_license <file>` (staged into each DIA-NN step and passed as `--license`). If you omit `--diann_license`, DIA-NN falls back to a key placed next to the binary inside a strictly private local build. `--enable_kb` requires the Enterprise profile; the pipeline errors otherwise.
 
 ### Using custom containers on HPC
 

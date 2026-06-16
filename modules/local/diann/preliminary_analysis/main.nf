@@ -15,6 +15,7 @@ process PRELIMINARY_ANALYSIS {
     input:
     tuple val(meta), path(ms_file), path(predict_library)
     path(diann_config)
+    path(diann_license)
 
     output:
     path "*.quant", emit: diann_quant
@@ -33,9 +34,13 @@ process PRELIMINARY_ANALYSIS {
     // Performance flags for preliminary analysis calibration step
     quick_mass_acc = params.quick_mass_acc ? "--quick-mass-acc" : ""
     performance_flags = params.performance_mode ? "--min-corr 2 --corr-diff 1 --time-corr-only" : ""
+    kb = params.enable_kb ? "--kb" : ""
+    // DIA-NN Enterprise license; falls back to a key next to the binary when no path is provided
+    license_arg = diann_license ? "--license ${diann_license}" : ""
     scoring_mode = params.scoring_mode == 'proteoforms' ? '--proteoforms' :
                          params.scoring_mode == 'peptidoforms' ? '--peptidoforms' : ''
     aa_eq = params.aa_eq ? '--aa-eq' : ''
+    strip_unknown_mods = params.strip_unknown_mods ? "--strip-unknown-mods" : ""
 
     // I am using here the ["key"] syntax, since the preprocessed meta makes
     // was evaluating to null when using the dot notation.
@@ -92,12 +97,15 @@ process PRELIMINARY_ANALYSIS {
             ${mass_acc} \\
             ${quick_mass_acc} \\
             ${performance_flags} \\
+            ${kb} \\
+            ${license_arg} \\
             ${min_pr_mz} \\
             ${max_pr_mz} \\
             ${min_fr_mz} \\
             ${max_fr_mz} \\
             ${scoring_mode} \\
             ${aa_eq} \\
+            ${strip_unknown_mods} \\
             ${diann_tims_sum} \\
             ${diann_im_window} \\
             --no-prot-inf \\

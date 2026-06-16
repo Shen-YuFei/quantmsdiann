@@ -17,12 +17,14 @@ process DIANN_MSSTATS {
 
     script:
     def args = task.ext.args ?: ''
+    // Precursor q-value: explicit param wins, else auto by diann_version (<2.5 -> 0.01, >=2.5 -> 0.05)
+    def precursor_qvalue = VersionUtils.resolvePrecursorQvalue(params)
     """
     set -o pipefail
     quantmsutilsc diann2msstats \\
         --report ${report} \\
         --exp_design ${exp_design} \\
-        --qvalue_threshold $params.precursor_qvalue \\
+        --qvalue_threshold ${precursor_qvalue} \\
         $args \\
         2>&1 | tee convert_report.log
 

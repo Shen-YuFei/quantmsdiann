@@ -2,6 +2,7 @@ lint:
   files_exist:
     - .github/workflows/ci.yml
     - .github/workflows/nf-test.yml
+    - .github/workflows/pr-comment.yml
     - .gitignore
     - conf/modules.config
     - conf/test.config

@@ -12,9 +12,9 @@
                             "modules"
                         ]
                     },
-                    "qpx": {
+                    "qpx/diann": {
                         "branch": "main",
-                        "git_sha": "dc3dcca1ab258b3a39dd817cfada480145b1964c",
+                        "git_sha": "21b7fa083b9400c6a276629fbf3ae8500493d518",
                         "installed_by": [
                             "modules"
                         ]

@@ -66,4 +66,11 @@ class VersionUtils {
         if (params.mzml_convert != null) return false
         return versionAtLeast(params.diann_version?.toString() ?: '1.8.1', NATIVE_RAW_MIN_VERSION)
     }
+
+    /** True when native Thermo .raw inputs must be copied instead of symlinked. */
+    static boolean requiresThermoRawCopy(params, inputs) {
+        if (!isNativeRawMode(params)) return false
+        def files = inputs instanceof Collection ? inputs : [inputs]
+        return files.any { it?.name?.toString()?.toLowerCase()?.endsWith('.raw') }
+    }
 }

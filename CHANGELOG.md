@@ -83,7 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Fixed`
 
-- DIA-NN per-file processes (`PRELIMINARY_ANALYSIS`, `INDIVIDUAL_ANALYSIS`, `ASSEMBLE_EMPIRICAL_LIBRARY`) now use `stageInMode 'copy'` when native `.raw` mode is active. DIA-NN's native Thermo reader fails when `.raw` files are staged as symlinks (Thermo SDK limitation); the copy-mode closure only kicks in for DIA-NN >= 2.1.0 with `--mzml_convert != true`.
+- DIA-NN per-file processes (`PRELIMINARY_ANALYSIS`, `INDIVIDUAL_ANALYSIS`, `ASSEMBLE_EMPIRICAL_LIBRARY`) now use `stageInMode 'copy'` for native Thermo `.raw` inputs. DIA-NN's native Thermo reader fails when `.raw` files are staged as symlinks (Thermo SDK limitation); other native formats such as Bruker `.d` remain symlinked.
 
 ### `Dependencies`
 

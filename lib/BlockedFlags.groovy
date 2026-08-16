@@ -113,7 +113,9 @@ class BlockedFlags {
             '--direct-quant', '--quant-sel-runs', '--quant-train-runs', '--quant-params',
             // Pipeline-managed: FDR controls (precursor_qvalue, matrix_qvalue, matrix_spec_q)
             '--qvalue', '--matrix-qvalue', '--matrix-spec-q',
-            '--window', '--individual-windows',
+            // Pipeline-managed: reuse the calibration values used to generate the .quant files
+            '--mass-acc', '--mass-acc-ms1', '--window',
+            '--individual-mass-acc', '--individual-windows',
             '--species-genes', '--report-decoys', '--xic', '--no-norm',
             '--export-quant', '--site-ms1-quant',
             '--channel-run-norm', '--channel-spec-norm',

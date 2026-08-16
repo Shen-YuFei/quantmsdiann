@@ -378,6 +378,7 @@ workflow DIA {
     FINAL_QUANTIFICATION(
         ms_file_names,
         ch_experiment_meta,
+        ch_parsed_vals,
         empirical_lib,
         INDIVIDUAL_ANALYSIS.out.diann_quant.collect(),
         ch_searchdb,

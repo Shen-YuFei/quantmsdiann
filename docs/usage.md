@@ -310,14 +310,14 @@ Parameters are resolved in this priority order:
 
 These parameters are extracted per-file from the SDRF via `convert-diann` and stored in `diann_design.tsv`:
 
-| DIA-NN flag      | SDRF column                                        | Design column            | Steps                   | Notes                                           |
-| ---------------- | -------------------------------------------------- | ------------------------ | ----------------------- | ----------------------------------------------- |
-| `--mass-acc-ms1` | `comment[precursor mass tolerance]`                | `PrecursorMassTolerance` | PRELIMINARY, INDIVIDUAL | Falls back to auto-detect if missing or not ppm |
-| `--mass-acc`     | `comment[fragment mass tolerance]`                 | `FragmentMassTolerance`  | PRELIMINARY, INDIVIDUAL | Falls back to auto-detect if missing or not ppm |
-| `--min-pr-mz`    | `comment[ms1 scan range]` or `comment[ms min mz]`  | `MS1MinMz`               | PRELIMINARY, INDIVIDUAL | Per-file for GPF; global broadest for INSILICO  |
-| `--max-pr-mz`    | `comment[ms1 scan range]` or `comment[ms max mz]`  | `MS1MaxMz`               | PRELIMINARY, INDIVIDUAL | Per-file for GPF; global broadest for INSILICO  |
-| `--min-fr-mz`    | `comment[ms2 scan range]` or `comment[ms2 min mz]` | `MS2MinMz`               | PRELIMINARY, INDIVIDUAL | Per-file for GPF; global broadest for INSILICO  |
-| `--max-fr-mz`    | `comment[ms2 scan range]` or `comment[ms2 max mz]` | `MS2MaxMz`               | PRELIMINARY, INDIVIDUAL | Per-file for GPF; global broadest for INSILICO  |
+| DIA-NN flag      | SDRF column                                        | Design column            | Steps                          | Notes                                          |
+| ---------------- | -------------------------------------------------- | ------------------------ | ------------------------------ | ---------------------------------------------- |
+| `--mass-acc-ms1` | `comment[precursor mass tolerance]`                | `PrecursorMassTolerance` | PRELIMINARY, INDIVIDUAL, FINAL | Auto-detected once, then reused downstream     |
+| `--mass-acc`     | `comment[fragment mass tolerance]`                 | `FragmentMassTolerance`  | PRELIMINARY, INDIVIDUAL, FINAL | Auto-detected once, then reused downstream     |
+| `--min-pr-mz`    | `comment[ms1 scan range]` or `comment[ms min mz]`  | `MS1MinMz`               | PRELIMINARY, INDIVIDUAL        | Per-file for GPF; global broadest for INSILICO |
+| `--max-pr-mz`    | `comment[ms1 scan range]` or `comment[ms max mz]`  | `MS1MaxMz`               | PRELIMINARY, INDIVIDUAL        | Per-file for GPF; global broadest for INSILICO |
+| `--min-fr-mz`    | `comment[ms2 scan range]` or `comment[ms2 min mz]` | `MS2MinMz`               | PRELIMINARY, INDIVIDUAL        | Per-file for GPF; global broadest for INSILICO |
+| `--max-fr-mz`    | `comment[ms2 scan range]` or `comment[ms2 max mz]` | `MS2MaxMz`               | PRELIMINARY, INDIVIDUAL        | Per-file for GPF; global broadest for INSILICO |
 
 ### Global parameters from config
 
@@ -329,7 +329,7 @@ These parameters apply globally across all files. They are set in `diann_config.
 | `--fixed-mod`                                 | (from SDRF)                                        | —                                               | ALL                                      | Fixed modifications from `comment[modification parameters]`     |
 | `--var-mod`                                   | (from SDRF)                                        | —                                               | ALL                                      | Variable modifications from `comment[modification parameters]`  |
 | `--monitor-mod`                               | `--enable_mod_localization` + `--mod_localization` | `false` / `Phospho (S),Phospho (T),Phospho (Y)` | PRELIMINARY, ASSEMBLE, INDIVIDUAL, FINAL | PTM site localization scoring (DIA-NN 1.8.x only)               |
-| `--window`                                    | `--scan_window`                                    | `8`                                             | PRELIMINARY, ASSEMBLE, INDIVIDUAL        | Scan window; auto-detected when `--scan_window_automatic=true`  |
+| `--window`                                    | `--scan_window`                                    | `8`                                             | PRELIMINARY, ASSEMBLE, INDIVIDUAL, FINAL | Scan window; auto-detected when `--scan_window_automatic=true`  |
 | `--quick-mass-acc`                            | `--quick_mass_acc`                                 | `true`                                          | PRELIMINARY                              | Fast mass accuracy calibration                                  |
 | `--min-corr 2 --corr-diff 1 --time-corr-only` | `--performance_mode`                               | `true`                                          | PRELIMINARY                              | High-speed, low-RAM mode                                        |
 | `--pg-level`                                  | `--pg_level`                                       | `2`                                             | INDIVIDUAL, FINAL                        | Protein grouping level                                          |
@@ -487,7 +487,7 @@ Flags that conflict with a specific step are **automatically stripped** with a w
 | PRELIMINARY_ANALYSIS        | `--mass-acc`, `--mass-acc-ms1`, `--window`, `--quick-mass-acc`, `--min-corr`, `--corr-diff`, `--time-corr-only`, `--min-pr-mz`, `--max-pr-mz`, `--min-fr-mz`, `--max-fr-mz`, `--monitor-mod`, `--var-mod`, `--fixed-mod`                                                         |
 | ASSEMBLE_EMPIRICAL_LIBRARY  | `--mass-acc`, `--mass-acc-ms1`, `--window`, `--individual-mass-acc`, `--individual-windows`, `--out-lib`, `--gen-spec-lib`, `--rt-profiling`, `--monitor-mod`, `--var-mod`, `--fixed-mod`                                                                                        |
 | INDIVIDUAL_ANALYSIS         | `--mass-acc`, `--mass-acc-ms1`, `--window`, `--pg-level`, `--relaxed-prot-inf`, `--no-ifs-removal`, `--min-pr-mz`, `--max-pr-mz`, `--min-fr-mz`, `--max-fr-mz`, `--monitor-mod`, `--var-mod`, `--fixed-mod`                                                                      |
-| FINAL_QUANTIFICATION        | `--pg-level`, `--species-genes`, `--no-norm`, `--report-decoys`, `--xic`, `--qvalue`, `--window`, `--individual-windows`, `--monitor-mod`, `--var-mod`, `--fixed-mod`                                                                                                            |
+| FINAL_QUANTIFICATION        | `--pg-level`, `--species-genes`, `--no-norm`, `--report-decoys`, `--xic`, `--qvalue`, `--mass-acc`, `--mass-acc-ms1`, `--window`, `--individual-mass-acc`, `--individual-windows`, `--monitor-mod`, `--var-mod`, `--fixed-mod`                                                   |
 
 All steps also block shared infrastructure flags: `--out`, `--temp`, `--threads`, `--verbose`, `--lib`, `--f`, `--fasta`, `--use-quant`, `--matrices`, `--no-main-report`.
 

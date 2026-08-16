@@ -13,6 +13,7 @@ process FINAL_QUANTIFICATION {
     // in the directory
     val(ms_files)
     val(meta)
+    val(calibration_values)
     path(empirical_library)
     // The quant path is passed, and diann will use the files in the quant directory instead
     // of the ones passed in ms_files.
@@ -50,7 +51,20 @@ process FINAL_QUANTIFICATION {
     // Blocked flags are defined centrally in lib/BlockedFlags.groovy — edit there, not here.
     args = BlockedFlags.strip('FINAL_QUANTIFICATION', args, log)
 
-    scan_window = params.scan_window_automatic ? "--individual-windows" : "--window $params.scan_window"
+    def values = calibration_values.trim().split(',')
+    if ((params.mass_acc_automatic || params.scan_window_automatic) && values[0] != '0') {
+        mass_acc_ms2 = values[0]
+        mass_acc_ms1 = values[1]
+        scan_window = values[2]
+    } else if (meta['precursormasstoleranceunit']?.toLowerCase()?.endsWith('ppm') && meta['fragmentmasstoleranceunit']?.toLowerCase()?.endsWith('ppm')) {
+        mass_acc_ms2 = meta['fragmentmasstolerance']
+        mass_acc_ms1 = meta['precursormasstolerance']
+        scan_window = params.scan_window
+    } else {
+        mass_acc_ms2 = params.mass_acc_ms2
+        mass_acc_ms1 = params.mass_acc_ms1
+        scan_window = params.scan_window
+    }
     species_genes = params.species_genes ? "--species-genes": ""
     prot_inf = params.relaxed_prot_inf ? "--relaxed-prot-inf" : (params.no_prot_inf ? "--no-prot-inf" : "")
     no_norm = params.normalize ? "" : "--no-norm"
@@ -98,6 +112,9 @@ process FINAL_QUANTIFICATION {
             ${license_arg} \\
             --matrix-qvalue $params.matrix_qvalue \\
             --matrix-spec-q $params.matrix_spec_q \\
+            --mass-acc ${mass_acc_ms2} \\
+            --mass-acc-ms1 ${mass_acc_ms1} \\
+            --window ${scan_window} \\
             ${report_decoys} \\
             ${quantums} \\
             ${quantums_train_runs} \\

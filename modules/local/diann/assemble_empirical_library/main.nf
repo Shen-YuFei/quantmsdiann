@@ -65,7 +65,8 @@ process ASSEMBLE_EMPIRICAL_LIBRARY {
     ls -lcth
 
     # Extract --var-mod, --fixed-mod, and --monitor-mod flags from diann_config.cfg
-    mod_flags=\$(grep -oP '(--var-mod\\s+\\S+|--fixed-mod\\s+\\S+|--monitor-mod\\s+\\S+|--lib-fixed-mod\\s+\\S+|--original-mods|--channels\\s+.+)' ${diann_config} | tr '\\n' ' ')
+    # grep exits 1 when an unmodified sample has no matching flags.
+    mod_flags=\$({ grep -oP '(--var-mod\\s+\\S+|--fixed-mod\\s+\\S+|--monitor-mod\\s+\\S+|--lib-fixed-mod\\s+\\S+|--original-mods|--channels\\s+.+)' "${diann_config}" || test \$? -eq 1; } | tr '\\n' ' ')
 
     diann   --f ${(ms_files as List).join(' --f ')} \\
             --lib ${lib} \\

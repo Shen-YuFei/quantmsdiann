@@ -94,7 +94,8 @@ process FINAL_QUANTIFICATION {
     # do not need to be present.
 
     # Extract --var-mod, --fixed-mod, and --monitor-mod flags from diann_config.cfg
-    mod_flags=\$(grep -oP '(--var-mod\\s+\\S+|--fixed-mod\\s+\\S+|--monitor-mod\\s+\\S+|--lib-fixed-mod\\s+\\S+|--original-mods|--channels\\s+.+)' ${diann_config} | tr '\\n' ' ')
+    # grep exits 1 when an unmodified sample has no matching flags.
+    mod_flags=\$({ grep -oP '(--var-mod\\s+\\S+|--fixed-mod\\s+\\S+|--monitor-mod\\s+\\S+|--lib-fixed-mod\\s+\\S+|--original-mods|--channels\\s+.+)' "${diann_config}" || test \$? -eq 1; } | tr '\\n' ' ')
 
     diann   --lib ${empirical_library} \\
             --fasta ${fasta} \\

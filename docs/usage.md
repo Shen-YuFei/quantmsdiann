@@ -2,6 +2,8 @@
 
 ## Introduction
 
+With `--mass_acc_automatic true` and preliminary analysis enabled, absent SDRF MS1/MS2 tolerances are allowed: DIA-NN calibrates them from the data. The pipeline records the missing annotations as unknown and logs the selected automatic mode. It does not fill the SDRF with configured default values. An explicitly provided tolerance must have both a valid numeric value and a supported unit, including in automatic mode. Missing tolerances in manual mode still produce a fallback warning; failures to obtain calibration settings retain their existing warning and fallback behavior.
+
 quantmsdiann is a Nextflow pipeline for DIA-NN-based quantitative mass spectrometry analysis.
 
 ## Running the pipeline

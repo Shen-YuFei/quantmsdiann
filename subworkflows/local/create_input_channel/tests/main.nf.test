@@ -1,0 +1,84 @@
+nextflow_function {
+    name "SDRF mass tolerance and automatic calibration"
+    script "../main.nf"
+    function "resolve_mass_tolerance"
+    tag "create_input_channel"
+
+    [
+        [name: 'automatic missing annotation', value: null, unit: null, auto: true, expected: [null, null]],
+        [name: 'automatic blank annotation', value: '  ', unit: '', auto: true, expected: [null, null]],
+        [name: 'manual missing annotation uses fallback', value: null, unit: null, auto: false, expected: [5, 'ppm']],
+        [name: 'automatic preserves SDRF provenance', value: '20', unit: 'ppm', auto: true, expected: [20.0, 'ppm']],
+        [name: 'manual ppm', value: ' 20 ', unit: ' PPM ', auto: false, expected: [20.0, 'PPM']],
+        [name: 'manual Da', value: '0.03', unit: 'Da', auto: false, expected: [0.03, 'Da']],
+        [name: 'unit missing in automatic mode', value: '20', unit: null, auto: true, error: 'Incomplete'],
+        [name: 'value missing in automatic mode', value: null, unit: 'ppm', auto: true, error: 'Incomplete'],
+        [name: 'unit missing in manual mode', value: '20', unit: null, auto: false, error: 'Incomplete'],
+        [name: 'invalid unit', value: '20', unit: 'ppa', auto: true, error: 'Invalid'],
+        [name: 'invalid number', value: 'oops', unit: 'ppm', auto: true, error: 'Invalid'],
+        [name: 'NaN', value: 'NaN', unit: 'ppm', auto: true, error: 'Invalid'],
+        [name: 'infinite', value: 'Infinity', unit: 'ppm', auto: false, error: 'Invalid'],
+        [name: 'negative', value: '-1', unit: 'ppm', auto: true, error: 'Invalid'],
+    ].each { example ->
+        test(example.name) {
+            when {
+                function {
+                    """
+                    input[0] = ${example.value.inspect()}
+                    input[1] = ${example.unit.inspect()}
+                    input[2] = 'precursor'
+                    input[3] = 'example.raw'
+                    input[4] = ${example.auto}
+                    input[5] = 5
+                    input[6] = 'ppm'
+                    """
+                }
+            }
+            then {
+                if (example.error) {
+                    assert function.failed
+                    assert function.stdout.any { it.contains(example.error) }
+                } else {
+                    assert function.success
+                    assert function.result == example.expected
+                }
+            }
+        }
+    }
+
+    [
+        [name: 'automatic calibration leaves absent annotations unset', automatic: true, skip: false, expected: null],
+        [name: 'skipped preliminary analysis retains the manual fallback', automatic: true, skip: true, expected: 5],
+        [name: 'manual mode retains the configured fallback', automatic: false, skip: false, expected: 5],
+    ].each { example ->
+        test(example.name) {
+            function "create_meta_channel_grouped"
+            when {
+                params {
+                    mass_acc_automatic = example.automatic
+                    skip_preliminary_analysis = example.skip
+                    precursor_mass_tolerance = 5
+                    precursor_mass_tolerance_unit = 'ppm'
+                    fragment_mass_tolerance = 20
+                    fragment_mass_tolerance_unit = 'ppm'
+                }
+                function {
+                    """
+                    input[0] = '${projectDir}/main.nf'
+                    input[1] = [[Label: 'label free sample', Enzyme: 'Trypsin']]
+                    input[2] = [experiment_id: 'test']
+                    input[3] = []
+                    """
+                }
+            }
+            then {
+                assert function.success
+                def meta = function.result[0]
+                assert meta.precursormasstolerance == example.expected
+                assert meta.precursormasstoleranceunit == (example.expected == null ? null : 'ppm')
+                assert meta.fragmentmasstolerance == (example.expected == null ? null : 20)
+                assert meta.fragmentmasstoleranceunit == (example.expected == null ? null : 'ppm')
+            }
+        }
+    }
+}

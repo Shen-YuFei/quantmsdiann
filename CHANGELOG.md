@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### `Fixed`
+
+- Preserve absent SDRF mass tolerances as unknown when automatic mass-accuracy calibration is enabled and preliminary analysis is run. Report the selected calibration mode instead of a misleading default-tolerance warning. Manual fallback and calibration-failure warnings remain; malformed or incomplete SDRF value/unit pairs are rejected in either mode.
+
 ## [2.3.0] bigbio/quantmsdiann — Guangzhou - 2026-08-14
 
 ### `Added`

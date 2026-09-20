@@ -191,51 +191,22 @@ def create_meta_channel_grouped(def filestr, List rows, Map wrapper, List downlo
         exit(1)
     }
 
-    def validUnits = ['ppm', 'da', 'Da', 'PPM']
+    def autoCalibrating = params.mass_acc_automatic && !params.skip_preliminary_analysis
+    def precursorTolerance = resolve_mass_tolerance(
+        base_row.PrecursorMassTolerance, base_row.PrecursorMassToleranceUnit,
+        'precursor', filestr, autoCalibrating,
+        params.precursor_mass_tolerance, params.precursor_mass_tolerance_unit
+    )
+    meta.precursormasstolerance = precursorTolerance[0]
+    meta.precursormasstoleranceunit = precursorTolerance[1]
 
-    if (base_row.PrecursorMassTolerance != null && !base_row.PrecursorMassTolerance.toString().trim().isEmpty()) {
-        try {
-            meta.precursormasstolerance = Double.parseDouble(base_row.PrecursorMassTolerance)
-        } catch (NumberFormatException e) {
-            log.error("ERROR: Invalid PrecursorMassTolerance value '${base_row.PrecursorMassTolerance}' for file '${filestr}'. Must be a valid number.")
-            exit(1)
-        }
-    } else {
-        log.warn("No precursor mass tolerance in SDRF for '${filestr}'. Using default: ${params.precursor_mass_tolerance} ${params.precursor_mass_tolerance_unit}")
-        meta.precursormasstolerance = params.precursor_mass_tolerance
-    }
-
-    if (base_row.PrecursorMassToleranceUnit != null && !base_row.PrecursorMassToleranceUnit.toString().trim().isEmpty()) {
-        if (!validUnits.any { base_row.PrecursorMassToleranceUnit.toString().equalsIgnoreCase(it) }) {
-            log.error("ERROR: Invalid PrecursorMassToleranceUnit '${base_row.PrecursorMassToleranceUnit}' for file '${filestr}'. Must be 'ppm' or 'Da'.")
-            exit(1)
-        }
-        meta.precursormasstoleranceunit = base_row.PrecursorMassToleranceUnit
-    } else {
-        meta.precursormasstoleranceunit = params.precursor_mass_tolerance_unit
-    }
-
-    if (base_row.FragmentMassTolerance != null && !base_row.FragmentMassTolerance.toString().trim().isEmpty()) {
-        try {
-            meta.fragmentmasstolerance = Double.parseDouble(base_row.FragmentMassTolerance)
-        } catch (NumberFormatException e) {
-            log.error("ERROR: Invalid FragmentMassTolerance value '${base_row.FragmentMassTolerance}' for file '${filestr}'. Must be a valid number.")
-            exit(1)
-        }
-    } else {
-        log.warn("No fragment mass tolerance in SDRF for '${filestr}'. Using default: ${params.fragment_mass_tolerance} ${params.fragment_mass_tolerance_unit}")
-        meta.fragmentmasstolerance = params.fragment_mass_tolerance
-    }
-
-    if (base_row.FragmentMassToleranceUnit != null && !base_row.FragmentMassToleranceUnit.toString().trim().isEmpty()) {
-        if (!validUnits.any { base_row.FragmentMassToleranceUnit.toString().equalsIgnoreCase(it) }) {
-            log.error("ERROR: Invalid FragmentMassToleranceUnit '${base_row.FragmentMassToleranceUnit}' for file '${filestr}'. Must be 'ppm' or 'Da'.")
-            exit(1)
-        }
-        meta.fragmentmasstoleranceunit = base_row.FragmentMassToleranceUnit
-    } else {
-        meta.fragmentmasstoleranceunit = params.fragment_mass_tolerance_unit
-    }
+    def fragmentTolerance = resolve_mass_tolerance(
+        base_row.FragmentMassTolerance, base_row.FragmentMassToleranceUnit,
+        'fragment', filestr, autoCalibrating,
+        params.fragment_mass_tolerance, params.fragment_mass_tolerance_unit
+    )
+    meta.fragmentmasstolerance = fragmentTolerance[0]
+    meta.fragmentmasstoleranceunit = fragmentTolerance[1]
 
     if (base_row.VariableModifications != null && !base_row.VariableModifications.toString().trim().isEmpty()) {
         meta.variablemodifications = base_row.VariableModifications
@@ -250,4 +221,35 @@ def create_meta_channel_grouped(def filestr, List rows, Map wrapper, List downlo
 
     def resolved_files = filestr instanceof List ? filestr.collect { file(it) } : file(filestr)
     return [meta, resolved_files]
+}
+
+def resolve_mass_tolerance(value, unit, level, filestr, automatic, fallbackValue, fallbackUnit) {
+    def valueText = value?.toString()?.trim()
+    def unitText = unit?.toString()?.trim()
+    if (!valueText && !unitText) {
+        if (automatic) {
+            log.info("Automatic DIA-NN mass accuracy calibration enabled for '${filestr}'; ${level} tolerance is not specified in SDRF.")
+            // Do not present configured fallback values as SDRF annotations.
+            // Downstream calibration failures retain their existing warning and fallback path.
+            return [null, null]
+        }
+        log.warn("No ${level} mass tolerance in SDRF for '${filestr}'. Using default: ${fallbackValue} ${fallbackUnit}")
+        return [fallbackValue, fallbackUnit]
+    }
+    if (!valueText || !unitText) {
+        error("Incomplete ${level} mass tolerance for '${filestr}': specify both value and unit in SDRF.")
+    }
+    if (!['ppm', 'da'].contains(unitText.toLowerCase())) {
+        error("Invalid ${level} mass tolerance unit '${unitText}' for '${filestr}': expected ppm or Da.")
+    }
+    double parsedValue
+    try {
+        parsedValue = Double.parseDouble(valueText)
+    } catch (NumberFormatException e) {
+        error("Invalid ${level} mass tolerance '${valueText}' for '${filestr}': expected a finite, non-negative number.")
+    }
+    if (!Double.isFinite(parsedValue) || parsedValue < 0) {
+        error("Invalid ${level} mass tolerance '${valueText}' for '${filestr}': expected a finite, non-negative number.")
+    }
+    return [parsedValue, unitText]
 }

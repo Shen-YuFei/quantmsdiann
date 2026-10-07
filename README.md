@@ -38,7 +38,7 @@ The pipeline takes [SDRF](https://github.com/bigbio/proteomics-metadata-standard
 
 | Version          | Profile                   | Container                                  | Key features                                                      |
 | ---------------- | ------------------------- | ------------------------------------------ | ----------------------------------------------------------------- |
-| 1.8.1 (default)  | `diann_v1_8_1`            | `ghcr.io/bigbio/diann-public:1.8.1` | Core DIA analysis, TSV output                                     |
+| 1.8.1 (default)  | `diann_v1_8_1`            | `ghcr.io/bigbio/diann-public:1.8.1`        | Core DIA analysis, TSV output                                     |
 | 2.1.0            | `diann_v2_1_0`            | `ghcr.io/bigbio/diann:2.1.0`               | Native .raw support, Parquet output                               |
 | 2.2.0            | `diann_v2_2_0`            | `ghcr.io/bigbio/diann:2.2.0`               | Speed optimizations (up to 1.6x on HPC)                           |
 | 2.3.2            | `diann_v2_3_2`            | `ghcr.io/bigbio/diann:2.3.2`               | DDA support (beta), InfinDIA, up to 9 var mods                    |

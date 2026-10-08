@@ -4,8 +4,9 @@ process ASSEMBLE_EMPIRICAL_LIBRARY {
     label 'diann'
     label 'error_retry'
 
-    // DIA-NN's native Thermo reader cannot follow symlinks; other inputs such as Bruker .d can.
-    stageInMode { VersionUtils.requiresThermoRawCopy(params, ms_files) ? 'copy' : 'symlink' }
+    // DIA-NN's native Thermo .raw reader fails on symlinked files (Thermo SDK limitation).
+    // Use 'copy' when .raw files are passed directly to DIA-NN (DIA-NN >= 2.1.0 without TRFP conversion).
+    stageInMode { VersionUtils.isNativeRawMode(params) ? 'copy' : 'symlink' }
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'oras://ghcr.io/bigbio/diann-public-sif:1.8.1' :

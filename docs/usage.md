@@ -78,7 +78,7 @@ The pipeline includes several preprocessing steps that can be controlled via par
 
 - **`--reindex_mzml`** (default: `false`) -- Force re-indexing of input mzML files at the start of the pipeline. This fixes common issues with slightly incomplete or outdated mzML files. Outputs from ThermoRawFileParser and the wiff converter are already indexed, so this is off by default; enable it only when supplying pre-built mzML files that may be unindexed.
 
-- **`--mzml_statistics`** (default: `false`) -- Compute MS1/MS2 statistics from mzML files. When enabled, `*_ms_info.parquet` files are generated for each mzML file and used in QC reporting. Bruker `.d` files are always skipped by this step.
+- **`--mzml_statistics`** (default: `false`) -- Compute MS1/MS2 statistics from mzML files. When enabled, `*_ms_info.parquet` files are generated for each mzML file and used in QC reporting. Bruker `.d` files are always skipped by this step. With `--enable_qpx_export`, QPX also fills `feature.scan` from these files when every run has one.
 
 - **`--mzml_features`** (default: `false`) -- Compute MS1-level features during the mzML statistics step. Only available for mzML files.
 

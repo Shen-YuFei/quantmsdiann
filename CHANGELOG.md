@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Added`
 
+- QPX export fills `feature.scan` from the `*_ms_info.parquet` files when `--mzml_statistics` produces one for every run. qpx keeps only the runs it has MS info for, so the files are not passed when some runs (for example Bruker `.d` or native `.raw`) have none. `bigbio/qpx/diann` carries a local patch adding the optional `ms_info` input until the change is released in nf-modules.
+
 ### `Changed`
 
 - Removed the stale `--diann_speclib` references from the documentation. The parameter is named `--speclib` (`nextflow.config`, `nextflow_schema.json`, and the `params.speclib` branch in `workflows/dia.nf` that skips `INSILICO_LIBRARY_GENERATION`); `--diann_speclib` was never read by the pipeline, so anyone following the GUI-flag mapping table in `docs/usage.md` would have their spectral library silently ignored and an in-silico library predicted from the FASTA instead. Passing `--diann_speclib` is flagged by nf-schema parameter validation as unrecognised. The workflow diagram (`docs/images/quantmsdiann_workflow.svg`) now also reads `skip if --speclib`.

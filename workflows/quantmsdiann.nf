@@ -100,6 +100,7 @@ workflow QUANTMSDIANN {
         ch_fileprep_result.dia,
         CREATE_INPUT_CHANNEL.out.ch_expdesign,
         CREATE_INPUT_CHANNEL.out.ch_diann_cfg,
+        FILE_PREPARATION.out.statistics,
     )
     ch_pipeline_results = ch_pipeline_results.mix(DIA.out.diann_report)
     ch_versions = ch_versions.mix(DIA.out.versions)

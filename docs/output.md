@@ -115,7 +115,7 @@ These files are not published by default. Enable them with `save_*` parameters o
 
 When `--enable_qpx_export` is set, the pipeline produces a [QPX Parquet dataset](https://github.com/bigbio/qpx) and a [MuData](https://mudata.readthedocs.io/) `.h5mu` file under `results/qpx/`. `<prefix>` defaults to `diann`, overridden by `--project_accession`.
 
-- `<prefix>.feature.parquet` — precursor-level features
+- `<prefix>.feature.parquet` — precursor-level features; `scan` is filled when `--mzml_statistics` produces `*_ms_info.parquet` for every run (mzML or converted `.raw` inputs) and stays empty otherwise
 - `<prefix>.pg.parquet` — protein-group intensities per run
 - `<prefix>.sample.parquet`, `<prefix>.run.parquet` — SDRF-derived metadata
 - `<prefix>.h5mu` — MuData with `precursors` and `proteins` modalities

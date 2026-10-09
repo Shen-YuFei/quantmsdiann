@@ -35,6 +35,7 @@ workflow DIA {
     ch_file_preparation_results
     ch_expdesign
     ch_diann_cfg
+    ch_ms_info // [ *_ms_info.parquet ] from --mzml_statistics, or empty
 
     main:
 
@@ -413,6 +414,19 @@ workflow DIA {
             error("--project_accession is required when --enable_qpx_export is set (used as the QPX output prefix and PRIDE/PX provenance metadata).")
         }
         ch_sdrf_original = channel.fromPath(params.input, checkIfExists: true).first()
+        // qpx keeps only the runs it has MS info for, so the tables are passed only
+        // when every run has one (mzML inputs with --mzml_statistics).
+        ch_qpx_ms_info = ch_ms_info
+            .ifEmpty([])
+            .map { files -> [files] }
+            .combine(ch_file_preparation_results.count())
+            .map { files, runs ->
+                if (files && files.size() != runs) {
+                    log.warn("QPX export: MS info covers ${files.size()} of ${runs} runs, so feature scans are left empty.")
+                }
+                files.size() == runs ? files : []
+            }
+            .first()
 
         QPX_DIANN(
             diann_main_report,
@@ -425,7 +439,8 @@ workflow DIA {
             // feature.pg_positions from it for target rows; proteins absent from it
             // (DIA-NN's internal decoys) stay null. ch_searchdb is already a value
             // channel shared with the library and search steps.
-            ch_searchdb
+            ch_searchdb,
+            ch_qpx_ms_info
         )
         ch_software_versions = ch_software_versions.mix(QPX_DIANN.out.versions)
         qpx_dataset_ch = QPX_DIANN.out.qpx_dataset

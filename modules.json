@@ -24,7 +24,8 @@
                         "git_sha": "c2c00e74fa8495c219a517631f6c3c9d3554712a",
                         "installed_by": [
                             "modules"
-                        ]
+                        ],
+                        "patch": "modules/bigbio/qpx/diann/qpx-diann.diff"
                     },
                     "thermorawfileparser": {
                         "branch": "main",

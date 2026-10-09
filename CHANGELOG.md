@@ -16,6 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reuse the mass accuracy and scan window that generated the `.quant` files in `FINAL_QUANTIFICATION`. `--mass-acc`, `--mass-acc-ms1` and `--window` are now pipeline-managed in that step.
 - Do not fail DIA-NN steps when `diann_config.cfg` contains no modification flags.
 - Preserve absent SDRF mass tolerances as unknown when automatic mass-accuracy calibration is enabled and preliminary analysis is run. Report the selected calibration mode instead of a misleading default-tolerance warning. Manual fallback and calibration-failure warnings remain; malformed or incomplete SDRF value/unit pairs are rejected in either mode.
+- **Native `.raw`/`.d` staging:** `PRELIMINARY_ANALYSIS`, `INDIVIDUAL_ANALYSIS` and `ASSEMBLE_EMPIRICAL_LIBRARY` no longer use `stageInMode 'copy'`, which copied every input (including the predicted spectral library) into every task; only the MS file is now materialised in place. On a 145-file run this removed ~18.7 TB of duplicated library copies.
+
+### `Dependencies`
+
+| Dependency | Old version | New version |
+| ---------- | ----------- | ----------- |
+| `qpx`      | 1.1.4       | 1.1.5       |
 
 ## [2.3.0] bigbio/quantmsdiann — Guangzhou - 2026-08-14
 

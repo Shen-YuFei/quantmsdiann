@@ -17,10 +17,28 @@ Changes in 'qpx/diann/meta.yml':
    qpx_dataset:
      - "qpx_output/*":
 
-'modules/bigbio/qpx/diann/environment.yml' is unchanged
+Changes in 'qpx/diann/environment.yml':
+--- modules/bigbio/qpx/diann/environment.yml
++++ modules/bigbio/qpx/diann/environment.yml
+@@ -7,4 +7,4 @@
+   # publishes it.
+   - pip
+   - pip:
+-      - qpx==1.1.5
++      - qpx==1.1.6
+
 Changes in 'qpx/diann/main.nf':
 --- modules/bigbio/qpx/diann/main.nf
 +++ modules/bigbio/qpx/diann/main.nf
+@@ -8,7 +8,7 @@
+     // a single image serves Docker (native) and Singularity (via docker://).
+     // BioContainers/Galaxy-depot lag the release, so GHCR is used for containers;
+     // -profile conda still resolves the bioconda package in environment.yml.
+-    container "ghcr.io/bigbio/qpx:1.1.5"
++    container "ghcr.io/bigbio/qpx:1.1.6"
+ 
+     input:
+     path(diann_report)
 @@ -21,6 +21,10 @@
      // feature.pg_positions from it, for target rows only, never overwriting a
      // producer value; proteins absent from it stay null.

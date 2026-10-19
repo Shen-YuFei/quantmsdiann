@@ -58,7 +58,7 @@ Changes in 'qpx/diann/main.nf':
      // Precursor-level cutoff for the features qpx writes. This must follow the
      // pipeline's precursor q-value (--qvalue), NOT matrix_qvalue: the latter
      // governs DIA-NN's output matrices, and using it here silently re-filtered
-@@ -54,6 +59,7 @@
+@@ -54,10 +59,10 @@
          ${log_arg} \\
          ${acc_arg} \\
          ${fasta_arg} \\
@@ -66,6 +66,10 @@ Changes in 'qpx/diann/main.nf':
          --output-folder qpx_output \\
          --output-prefix ${prefix} \\
          --qvalue-threshold ${qvalue} \\
+-        --standardized-intensities \\
+         --max-cpus ${task.cpus} \\
+         --max-memory ${task.memory ? task.memory.toGiga() : 4}GB \\
+         --compression zstd \\
 
 Changes in 'qpx/diann/tests/main.nf.test':
 --- modules/bigbio/qpx/diann/tests/main.nf.test

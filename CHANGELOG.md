@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Added`
 
-- QPX export fills `feature.scan` from the `*_ms_info.parquet` files when `--mzml_statistics` produces one for every run. qpx keeps only the runs it has MS info for, so the files are not passed when some runs (for example Bruker `.d` or native `.raw`) have none. `bigbio/qpx/diann` carries a local patch adding the optional `ms_info` input until the change is released in nf-modules. qpx 1.1.6 is required: 1.1.5 wrote DIA-NN 1.8 `MS2.Scan`, a 0-based position among a run's MS2 spectra, as the native scan number.
+- QPX export fills `feature.scan` from the `*_ms_info.parquet` files when `--mzml_statistics` produces one for every run. qpx keeps only the runs it has MS info for, so the files are not passed when some runs (for example Bruker `.d` or native `.raw`) have none. qpx 1.1.6 is required: 1.1.5 wrote DIA-NN 1.8 `MS2.Scan`, a 0-based position among a run's MS2 spectra, as the native scan number.
 
 ### `Changed`
 
